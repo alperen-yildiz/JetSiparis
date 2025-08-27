@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Keys koleksiyonu için okuma izni
+    match /keys/{document} {
+      allow read: if true;
+      allow write: if true; // Test amaçlı, production'da daha kısıtlayıcı olmalı
+    }
+    
+    // Diğer tüm koleksiyonlar için erişim engellendi
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

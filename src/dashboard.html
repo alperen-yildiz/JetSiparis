@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetSiparış - Dashboard</title>
+    <link rel="stylesheet" href="/assets/css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1><img src="assets/logo.png" style="height: 40px; width: 40px;" alt="JetSiparış Logo"> JetSiparış</h1>
+                    <span class="version"></span>
+                </div>
+                <div class="user-section">
+                    <div class="user-info">
+                        <span class="welcome-text">Hoş geldiniz!</span>
+                        <span class="user-email" id="userEmail">user@example.com</span>
+                    </div>
+                    <button class="settings-btn" id="settingsBtn">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Stats Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="connectedPlatforms">0</h3>
+                            <p>Bağlı Platform</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalOrders">0</h3>
+                            <p>Toplam Sipariş</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="todayRevenue">₺0</h3>
+                            <p>Bugünkü Gelir</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="avgDeliveryTime">0 dk</h3>
+                            <p>Ort. Teslimat</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Platform Status -->
+            <section class="platforms-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-plug"></i> Platform Durumu</h2>
+                    <button class="refresh-btn" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        Yenile
+                    </button>
+                </div>
+                
+                <div class="platforms-grid" id="platformsGrid">
+                    <!-- Platform cards will be dynamically generated -->
+                </div>
+            </section>
+
+            <!-- Recent Orders -->
+            <section class="orders-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> Son Siparişler</h2>
+                    <button class="view-all-btn">
+                        <i class="fas fa-external-link-alt"></i>
+                        Tümünü Gör
+                    </button>
+                </div>
+                
+                <div class="orders-table-container">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Sipariş No</th>
+                                <th>Platform</th>
+                                <th>Müşteri</th>
+                                <th>Tutar</th>
+                                <th>Durum</th>
+                                <th>Zaman</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- Orders will be dynamically generated -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Ayarlar</h3>
+                <button class="close-btn" id="closeModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h4>Platform Ayarları</h4>
+                    <button class="settings-option" id="managePlatformsBtn">
+                        <i class="fas fa-store"></i>
+                        <span>Platform Yönetimi</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="settings-option" id="apiSettingsBtn">
+                        <i class="fas fa-code"></i>
+                        <span>API Ayarları</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Genel Ayarlar</h4>
+                    <button class="settings-option" id="notificationSettingsBtn">
+                        <i class="fas fa-bell"></i>
+                        <span>Bildirim Ayarları</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="settings-option" id="backupSettingsBtn">
+                        <i class="fas fa-download"></i>
+                        <span>Yedekleme</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Hesap</h4>
+                    <button class="settings-option danger" id="resetBtn">
+                        <i class="fas fa-redo"></i>
+                        <span>Kurulumu Sıfırla</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="./assets/js/dashboard.js"></script>
+
+</body>
+</html>

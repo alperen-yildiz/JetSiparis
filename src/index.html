@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jet Uygulamaları</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .main-container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 50px;
+        }
+        
+        .main-title {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #f1f5f9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .main-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+        }
+        
+        .apps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .app-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(226, 232, 240, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .app-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        .jetsipariscard {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+        }
+        
+        .jetarayancard {
+            --primary-color: #f093fb;
+            --secondary-color: #f5576c;
+        }
+        
+        .app-icon {
+             width: 80px;
+             height: 80px;
+             border-radius: 20px;
+             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: white;
+             font-size: 36px;
+             margin: 0 auto 24px;
+             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+             overflow: hidden;
+         }
+         
+         .app-logo {
+             width: 100%;
+             height: 100%;
+             object-fit: cover;
+             border-radius: 20px;
+         }
+        
+        .app-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        
+        .app-description {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .app-features {
+            list-style: none;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .app-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #475569;
+        }
+        
+        .app-features li i {
+            color: var(--primary-color);
+            font-size: 16px;
+            width: 20px;
+        }
+        
+        .launch-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .launch-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .launch-btn:hover::before {
+            left: 100%;
+        }
+        
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        .launch-btn:active {
+            transform: translateY(0);
+        }
+        
+        .status-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .jetarayan-status {
+            background: #f59e0b;
+        }
+        
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 36px;
+            }
+            
+            .apps-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .app-card {
+                padding: 30px 20px;
+            }
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 300px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1 class="main-title">Jet Uygulamaları</h1>
+            <p class="main-subtitle">İşletmenizi yönetmek için ihtiyacınız olan tüm araçlar</p>
+        </div>
+        
+        <div class="apps-container">
+            <!-- JetSiparış Kartı -->
+            <div class="app-card jetsipariscard">
+                <div class="status-badge">Aktif</div>
+                <div class="app-icon">
+                    <img src="./assets/logo.png" alt="JetSiparış Logo" class="app-logo">
+                </div>
+                <h2 class="app-title">JetSiparış</h2>
+                <p class="app-description">
+                    Çoklu platform sipariş yönetim sistemi. Tüm satış kanallarınızı tek yerden kontrol edin.
+                </p>
+                <ul class="app-features">
+                    <li><i class="fas fa-check"></i> Çoklu platform entegrasyonu</li>
+                    <li><i class="fas fa-check"></i> Gerçek zamanlı sipariş takibi</li>
+                    <li><i class="fas fa-check"></i> Otomatik stok yönetimi</li>
+                    <li><i class="fas fa-check"></i> Detaylı raporlama</li>
+                </ul>
+                <button class="launch-btn" onclick="launchJetSiparis()">
+                    <i class="fas fa-rocket"></i> JetSiparış'i Başlat
+                </button>
+            </div>
+            
+            <!-- JetArayan Kartı -->
+            <div class="app-card jetarayancard">
+                <div class="status-badge jetarayan-status">Yakında</div>
+                <div class="app-icon">
+                    <img src="./assets/JetArayan.png" alt="JetArayan Logo" class="app-logo">
+                </div>
+                <h2 class="app-title">JetArayan</h2>
+                <p class="app-description">
+                    Akıllı müşteri arama ve analiz sistemi. Potansiyel müşterilerinizi keşfedin.
+                </p>
+                <ul class="app-features">
+                    <li><i class="fas fa-check"></i> Akıllı müşteri analizi</li>
+                    <li><i class="fas fa-check"></i> Hedef kitle belirleme</li>
+                    <li><i class="fas fa-check"></i> Rekabet analizi</li>
+                    <li><i class="fas fa-check"></i> Pazarlama önerileri</li>
+                </ul>
+                <button class="launch-btn" onclick="launchJetArayan()">
+                    <i class="fas fa-search"></i> JetArayan'ı Başlat
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3 id="loadingText">Uygulama başlatılıyor...</h3>
+            <p id="loadingSubtext">Lütfen bekleyin</p>
+        </div>
+    </div>
+    
+    <script>
+        function showLoading(text, subtext) {
+            const overlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            const loadingSubtext = document.getElementById('loadingSubtext');
+            
+            loadingText.textContent = text;
+            loadingSubtext.textContent = subtext;
+            overlay.style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'none';
+        }
+        
+        async function launchJetSiparis() {
+            showLoading('JetSiparış başlatılıyor...', 'Kurulum kontrol ediliyor');
+            
+            try {
+                // Kurulum kontrolü simülasyonu
+                await delay(1000);
+                
+                const setupComplete = checkSetupComplete();
+                
+                if (setupComplete) {
+                    showLoading('Dashboard yükleniyor...', 'Veriler hazırlanıyor');
+                    await delay(1000);
+                    window.location.href = './dashboard.html';
+                } else {
+                    showLoading('Kurulum sihirbazı başlatılıyor...', 'İlk kurulum gerekli');
+                    await delay(1000);
+                    window.location.href = './onboarding/index.html';
+                }
+            } catch (error) {
+                console.error('JetSiparış başlatma hatası:', error);
+                hideLoading();
+                alert('JetSiparış başlatılırken bir hata oluştu.');
+            }
+        }
+        
+        async function launchJetArayan() {
+            showLoading('JetArayan başlatılıyor...', 'Kurulum kontrol ediliyor');
+            
+            try {
+                // Kurulum kontrolü simülasyonu
+                await delay(1000);
+                
+                const setupComplete = checkJetArayanSetupComplete();
+                
+                if (setupComplete) {
+                    showLoading('Dashboard yükleniyor...', 'Veriler hazırlanıyor');
+                    await delay(1000);
+                    window.location.href = './arayanDashboard.html';
+                } else {
+                    showLoading('Kurulum sihirbazı başlatılıyor...', 'İlk kurulum gerekli');
+                    await delay(1000);
+                    window.location.href = './onboarding/arayanOnboarding.html';
+                }
+            } catch (error) {
+                console.error('JetArayan başlatma hatası:', error);
+                hideLoading();
+                alert('JetArayan başlatılırken bir hata oluştu.');
+            }
+        }
+        
+        function checkSetupComplete() {
+            try {
+                const setupComplete = localStorage.getItem('jetSiparisSetupComplete');
+                const setupData = localStorage.getItem('jetSiparisSetup');
+                
+                if (setupComplete === 'true' && setupData) {
+                    const data = JSON.parse(setupData);
+                    return data.license && data.platforms && data.apiConfigs && 
+                           Object.keys(data.apiConfigs).length > 0;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Kurulum kontrolü sırasında hata:', error);
+                return false;
+            }
+        }
+        
+        function checkJetArayanSetupComplete() {
+            try {
+                const setupComplete = localStorage.getItem('jetArayanSetupComplete');
+                const setupData = localStorage.getItem('jetArayanSetup');
+                
+                if (setupComplete === 'true' && setupData) {
+                    const data = JSON.parse(setupData);
+                    return data.license && data.restaurantName;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('JetArayan kurulum kontrolü sırasında hata:', error);
+                return false;
+            }
+        }
+        
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        // Tauri API'si mevcut ise, pencere ayarlarını optimize et
+        if (window.__TAURI__) {
+            console.log('Tauri ortamı tespit edildi');
+        }
+        
+        // Sayfa yüklendiğinde animasyonları başlat
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.app-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200 + 300);
+            });
+        });
+    </script>
+</body>
+</html>

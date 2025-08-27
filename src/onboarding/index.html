@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetSiparış - Base Setup</title>
+    <link rel="stylesheet" href="css/onboarding.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase konfigürasyonu
+        const firebaseConfig = {
+            apiKey: "AIzaSyAnIsJDAZcz9gIke0_BGoV0ZiAILs9iWtI",
+            authDomain: "setsiparis.firebaseapp.com",
+            projectId: "setsiparis",
+            storageBucket: "setsiparis.firebasestorage.app",
+            messagingSenderId: "729504268977",
+            appId: "1:729504268977:web:339544760e84d882825890",
+            measurementId: "G-F6BVHB588Z"
+        };
+        
+        // Firebase'i başlat
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Global olarak erişilebilir yap
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+    </script>
+</head>
+<body>
+    <div class="setup-container">
+        <!-- Left Side - Form Content -->
+        <div class="form-section">
+            <div class="form-content">
+                <!-- Logo -->
+                <div class="logo">
+                    <img src="../assets/logo.png" style="width: 50px; height: 50px;" alt="">
+                </div>
+                
+                <!-- Header -->
+                <div class="setup-header">
+                    <h1>JetSiparış Setup</h1>
+                    <p>Kurulumu tamamlamak için aşağıdaki adımları takip edin.</p>
+                </div>
+                
+                <!-- Multi-Step Form -->
+                <div class="setup-steps-container">
+                    <!-- Step 1: License Validation -->
+                    <div class="step-content active" id="step1">
+                        <form class="step-form" id="licenseForm">
+                            <div class="form-section-wrapper">
+                                <h3>Lisans Anahtarı</h3>
+                                <p class="form-description">E-postanıza gönderilen lisans anahtarını girin</p>
+                                
+                                <div class="input-group">
+                                    <input type="text" id="licenseKey" placeholder="TATPZ3" maxlength="6" required>
+                                    <div class="license-status" id="licenseStatus">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Doğrulama bekleniyor</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary" id="validateLicense">
+                                        <i class="fas fa-check"></i>
+                                        Lisansı Doğrula
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Step 2: Platform Selection -->
+                    <div class="step-content" id="step2">
+                        
+                        
+                        <form class="step-form" id="platformForm">
+                            <div class="form-section-wrapper">
+                                <h3>Mevcut Platformlar</h3>
+                                <p class="form-description">Entegre etmek istediğiniz platformları seçin</p>
+                                
+                                <div class="platforms-grid">
+                                    <div class="platform-option" data-platform="yemeksepeti">
+                                        <div class="platform-card">
+                                            <div class="platform-logo">
+                                                <img src="https://jetsiparis.solosolf.com/img/Yemek-Sepeti.png" alt="Yemeksepeti">
+                                            </div>
+                                            <h3>Yemeksepeti</h3>
+                                            <p>Türkiye'nin en büyük yemek sipariş platformu</p>
+                                            <div class="platform-checkbox">
+                                                <input type="checkbox" id="platform_yemeksepeti" name="platforms" value="yemeksepeti">
+                                                <label for="platform_yemeksepeti"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="platform-option" data-platform="migros">
+                                        <div class="platform-card">
+                                            <div class="platform-logo">
+                                                <img src="https://jetsiparis.solosolf.com/img/migros-yemek.webp" alt="Migros Yemek">
+                                            </div>
+                                            <h3>Migros Yemek</h3>
+                                            <p>Migros'un online yemek sipariş platformu</p>
+                                            <div class="platform-checkbox">
+                                                <input type="checkbox" id="platform_migros" name="platforms" value="migros">
+                                                <label for="platform_migros"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="platform-option" data-platform="trendyol">
+                                        <div class="platform-card">
+                                            <div class="platform-logo">
+                                                <img src="https://jetsiparis.solosolf.com/img/trendyol-yemek.webp" alt="Trendyol Yemek">
+                                            </div>
+                                            <h3>Trendyol Yemek</h3>
+                                            <p>Trendyol'un yemek sipariş hizmet platformu</p>
+                                            <div class="platform-checkbox">
+                                                <input type="checkbox" id="platform_trendyol" name="platforms" value="trendyol">
+                                                <label for="platform_trendyol"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="platform-option" data-platform="getir">
+                                        <div class="platform-card">
+                                            <div class="platform-logo">
+                                                <img src="https://jetsiparis.solosolf.com/img/getir-yemek.png" alt="Getir Yemek">
+                                            </div>
+                                            <h3>Getir Yemek</h3>
+                                            <p>Hızlı teslimat odaklı yemek platformu</p>
+                                            <div class="platform-checkbox">
+                                                <input type="checkbox" id="platform_getir" name="platforms" value="getir">
+                                                <label for="platform_getir"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" class="btn-secondary" id="backToStep1">
+                                        <i class="fas fa-arrow-left"></i>
+                                        Geri
+                                    </button>
+                                    <button type="submit" class="btn-primary" id="continueToStep3" disabled>
+                                        <i class="fas fa-arrow-right"></i>
+                                        Devam Et
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Step 3: API Configuration -->
+                    <div class="step-content" id="step3"> 
+                        <form class="step-form" id="apiForm">
+                            <div class="form-section-wrapper">
+                                <h3>API Konfigürasyonu</h3>
+                                <p class="form-description">Her platform için gerekli API bilgilerini girin</p>
+                                
+                                <div class="api-configs" id="apiConfigs">
+                                    <!-- API configuration sections will be generated dynamically -->
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" class="btn-secondary" id="backToStep2">
+                                        <i class="fas fa-arrow-left"></i>
+                                        Geri
+                                    </button>
+                                    <button type="submit" class="btn-primary" id="completeSetup">
+                                        <i class="fas fa-check"></i>
+                                        Kurulumu Tamamla
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Success Step -->
+                    <div class="step-content" id="successStep">
+                        <div class="success-content">
+                            <div class="success-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <h2>Kurulum Tamamlandı!</h2>
+                            <p>JetSiparış başarıyla kuruldu. Artık siparişlerinizi yönetmeye başlayabilirsiniz.</p>
+                            
+                            <div class="success-actions">
+                                <button class="btn-primary" id="goToDashboard">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    Dashboard'a Git
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-content">
+                <h2>Quick & Easy Setup</h2>
+                
+                <div class="setup-steps">
+                    <div class="step active">
+                        <div class="step-indicator">
+                            <span class="step-number">1</span>
+                        </div>
+                        <span class="step-text">Lisans Doğrulama</span>
+                        <span class="step-status">ACTIVE</span>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-indicator">
+                            <span class="step-number">2</span>
+                        </div>
+                        <span class="step-text">Platform Seçimi</span>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-indicator">
+                            <span class="step-number">3</span>
+                        </div>
+                        <span class="step-text">Platformlar arası bağlantı</span>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <p>Lisans Almak İster Mısın? <a href="https://jetsiparis.solosolf.com/" target="_blank">Tıkla Hemen Al</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="js/onboarding.js"></script>
+</body>
+</html>

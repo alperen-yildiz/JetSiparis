@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetArayan - Caller ID Dashboard</title>
+    <link rel="stylesheet" href="assets/css/arayanDashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1><img src="assets/JetArayan.png" style="height: 40px; width: 40px;" alt="JetArayan Logo"> JetArayan</h1>
+                    <span class="version">v1.0</span>
+                </div>
+                <div class="user-section">
+                    <div class="call-status" id="callStatus">
+                        <span class="status-indicator offline" id="statusIndicator"></span>
+                        <span class="status-text" id="statusText">Çevrimdışı</span>
+                    </div>
+                    <button class="settings-btn" id="settingsBtn">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Current Call Section -->
+            <!-- Gelen Arama ve Müşteri Yönetimi Bölümü -->
+            <section class="customer-management-section" id="customerManagementSection">
+                <!-- Arama Bilgisi -->
+                <div class="call-info-card">
+                    <div class="call-header">
+                        <div class="call-status-badge incoming">
+                            <i class="fas fa-phone-alt"></i>
+                            <span>Gelen Arama</span>
+                        </div>
+                        <div class="call-number" id="incomingNumber">+90 XXX XXX XX XX</div>
+                    </div>
+                </div>
+
+                <!-- Müşteri Bilgileri Bölümü -->
+                <div class="customer-info-section" id="customerInfoSection">
+                    <!-- Mevcut Müşteri Bilgileri -->
+                    <div class="customer-card" id="existingCustomerCard" style="display: none;">
+                        <div class="customer-header">
+                            <h3><i class="fas fa-user-check"></i> Müşteri Bilgileri</h3>
+                            <button class="edit-btn" id="editCustomerBtn">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </button>
+                        </div>
+                        <div class="customer-details" id="customerDetails">
+                            <div class="detail-row">
+                                <label>Ad Soyad:</label>
+                                <span id="customerFullName">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Telefon:</label>
+                                <span id="customerPhone">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Adres:</label>
+                                <span id="customerAddress">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Not:</label>
+                                <span id="customerNote">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Kayıt Tarihi:</label>
+                                <span id="customerRegDate">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Toplam Arama:</label>
+                                <span id="customerCallCount">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yeni Müşteri Formu -->
+                    <div class="new-customer-form" id="newCustomerForm" style="display: none;">
+                        <div class="form-header">
+                            <h3><i class="fas fa-user-plus"></i> Yeni Müşteri Kaydı</h3>
+                        </div>
+                        <form id="customerForm">
+                            <div class="form-group">
+                                <label for="firstName">Ad <span class="required">*</span></label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Soyad <span class="required">*</span></label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Adres <span class="required">*</span></label>
+                                <textarea id="address" name="address" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="note">Not</label>
+                                <textarea id="note" name="note" rows="2"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="save-btn">
+                                    <i class="fas fa-save"></i> Kaydet
+                                </button>
+                                <button type="button" class="cancel-btn" id="cancelFormBtn">
+                                    <i class="fas fa-times"></i> İptal
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Müşteri Düzenleme Formu -->
+                    <div class="edit-customer-form" id="editCustomerForm" style="display: none;">
+                        <div class="form-header">
+                            <h3><i class="fas fa-user-edit"></i> Müşteri Bilgilerini Düzenle</h3>
+                        </div>
+                        <form id="editForm">
+                            <div class="form-group">
+                                <label for="editFirstName">Ad <span class="required">*</span></label>
+                                <input type="text" id="editFirstName" name="editFirstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editLastName">Soyad <span class="required">*</span></label>
+                                <input type="text" id="editLastName" name="editLastName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editAddress">Adres <span class="required">*</span></label>
+                                <textarea id="editAddress" name="editAddress" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="editNote">Not</label>
+                                <textarea id="editNote" name="editNote" rows="2"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="save-btn">
+                                    <i class="fas fa-save"></i> Güncelle
+                                </button>
+                                <button type="button" class="cancel-btn" id="cancelEditBtn">
+                                    <i class="fas fa-times"></i> İptal
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Sipariş Alma Bölümü -->
+                <div class="order-section" id="orderSection" style="display: none;">
+                    <div class="order-header">
+                        <h3><i class="fas fa-shopping-cart"></i> Sipariş Al</h3>
+                    </div>
+                    
+                    <!-- Kategori Butonları -->
+                    <div class="category-buttons">
+                        <button type="button" class="category-btn active" data-category="soguk-icecek">
+                            <i class="fas fa-glass-whiskey"></i>
+                            Soğuk İçecek
+                        </button>
+                        <button type="button" class="category-btn" data-category="sicak-icecek">
+                            <i class="fas fa-coffee"></i>
+                            Sıcak İçecek
+                        </button>
+                        <button type="button" class="category-btn" data-category="yemek">
+                            <i class="fas fa-utensils"></i>
+                            Yemek
+                        </button>
+                        <button type="button" class="category-btn" data-category="tatli">
+                            <i class="fas fa-birthday-cake"></i>
+                            Tatlı
+                        </button>
+                    </div>
+
+                    <!-- Ürün Butonları -->
+                    <div class="product-buttons">
+                        <!-- Soğuk İçecek -->
+                        <div class="product-group" data-category="soguk-icecek">
+                            <button type="button" class="product-btn" data-product="kola" data-price="15">
+                                <span class="product-name">Kola</span>
+                                <span class="product-price">15₺</span>
+                                <span class="product-count" id="count-kola">0</span>
+                            </button>
+                            <button type="button" class="product-btn" data-product="ayran" data-price="8">
+                                <span class="product-name">Ayran</span>
+                                <span class="product-price">8₺</span>
+                                <span class="product-count" id="count-ayran">0</span>
+                            </button>
+                            <button type="button" class="product-btn" data-product="su" data-price="5">
+                                <span class="product-name">Su</span>
+                                <span class="product-price">5₺</span>
+                                <span class="product-count" id="count-su">0</span>
+                            </button>
+                            <button type="button" class="product-btn" data-product="meyve-suyu" data-price="12">
+                                <span class="product-name">Meyve Suyu</span>
+                                <span class="product-price">12₺</span>
+                                <span class="product-count" id="count-meyve-suyu">0</span>
+                            </button>
+                        </div>
+
+                        <!-- Sıcak İçecek -->
+                        <div class="product-group" data-category="sicak-icecek" style="display: none;">
+                            <button type="button" class="product-btn" data-product="cay" data-price="6">
+                                <span class="product-name">Çay</span>
+                                <span class="product-price">6₺</span>
+                                <span class="product-count" id="count-cay">0</span>
+                            </button>
+                            <button type="button" class="product-btn" data-product="kahve" data-price="20">
+                                <span class="product-name">Kahve</span>
+                                <span class="product-price">20₺</span>
+                                <span class="product-count" id="count-kahve">0</span>
+                            </button>
+                            <button type="button" class="product-btn" data-product="sicak-cikolata" data-price="18">
+                                <span class="product-name">Sıcak Çikolata</span>
+                                <span class="product-price">18₺</span>
+                                <span class="product-count" id="count-sicak-cikolata">0</span>
+                            </button>
+                        </div>
+
+                        <!-- Yemek -->
+                        <div class="product-group" data-category="yemek" style="display: none;">
+                            <button type="button" class="product-btn" data-product="pizza" data-price="45">
+                                <span class="product-name">Pizza</span>
+                                <span class="product-price">45₺</span>
+                                <span class="product-count" id="count-pizza">0</span>
+                            </button>
+                            <button type="button" class="product-btn" data-product="burger" data-price="35">
+                                <span class="product-name">Burger</span>
+                                <span class="product-price">35₺</span>
+                                <span class="product-count" id="count-burger">0</span>
+                            </button>
+                            <button type="button" class="product-btn" data-product="sandvic" data-price="25">
+                                <span class="product-name">Sandviç</span>
+                                <span class="product-price">25₺</span>
+                                <span class="product-count" id="count-sandvic">0</span>
+                            </button>
+                        </div>
+
+                        <!-- Tatlı -->
+                        <div class="product-group" data-category="tatli" style="display: none;">
+                            <button type="button" class="product-btn" data-product="pasta" data-price="30">
+                                <span class="product-name">Pasta</span>
+                                <span class="product-price">30₺</span>
+                                <span class="product-count" id="count-pasta">0</span>
+                            </button>
+                            <button type="button" class="product-btn" data-product="dondurma" data-price="15">
+                                <span class="product-name">Dondurma</span>
+                                <span class="product-price">15₺</span>
+                                <span class="product-count" id="count-dondurma">0</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sepet Bölümü -->
+                <div class="cart-section" id="cartSection" style="display: none;">
+                    <div class="cart-header">
+                        <h3><i class="fas fa-shopping-basket"></i> Sepet</h3>
+                        <button class="clear-cart-btn" id="clearCartBtn">
+                            <i class="fas fa-trash"></i> Temizle
+                        </button>
+                    </div>
+                    <div class="cart-items" id="cartItems">
+                        <div class="empty-cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <p>Sepet boş</p>
+                        </div>
+                    </div>
+                    <div class="cart-total" id="cartTotal">
+                        <div class="total-row">
+                            <span>Toplam:</span>
+                            <span class="total-amount" id="totalAmount">0₺</span>
+                        </div>
+                    </div>
+                    <div class="cart-actions">
+                        <button class="order-btn" id="completeOrderBtn">
+                            <i class="fas fa-check"></i> Siparişi Tamamla
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalCalls">0</h3>
+                            <p>Toplam Arama</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-phone-volume"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="answeredCalls">0</h3>
+                            <p>Cevaplanan</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="blockedCalls">0</h3>
+                            <p>Engellenen</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="avgCallDuration">0 dk</h3>
+                            <p>Ort. Süre</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-bolt"></i> Hızlı İşlemler</h2>
+                </div>
+                <div class="quick-actions-grid">
+                    <button class="quick-action-btn" id="blockNumberBtn">
+                        <i class="fas fa-ban"></i>
+                        <span>Numara Engelle</span>
+                    </button>
+                    <button class="quick-action-btn" id="addContactBtn">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Kişi Ekle</span>
+                    </button>
+                    <button class="quick-action-btn" id="callHistoryBtn">
+                        <i class="fas fa-history"></i>
+                        <span>Arama Geçmişi</span>
+                    </button>
+                    <button class="quick-action-btn" id="reportSpamBtn">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Spam Bildir</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Recent Calls -->
+            <section class="calls-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> Son Aramalar</h2>
+                    <button class="view-all-btn" id="viewAllCallsBtn">
+                        <i class="fas fa-external-link-alt"></i>
+                        Tümünü Gör
+                    </button>
+                </div>
+                
+                <div class="calls-list" id="callsList">
+                    <!-- Calls will be dynamically generated -->
+                </div>
+            </section>
+
+            <!-- Blocked Numbers -->
+            <section class="blocked-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-shield-alt"></i> Engellenen Numaralar</h2>
+                    <button class="manage-blocked-btn" id="manageBlockedBtn">
+                        <i class="fas fa-cog"></i>
+                        Yönet
+                    </button>
+                </div>
+                
+                <div class="blocked-list" id="blockedList">
+                    <!-- Blocked numbers will be dynamically generated -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Ayarlar</h3>
+                <button class="close-btn" id="closeModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h4>Arama Ayarları</h4>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="autoBlockSpam" checked>
+                            <span class="checkmark"></span>
+                            Spam aramaları otomatik engelle
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="showCallerLocation" checked>
+                            <span class="checkmark"></span>
+                            Arayan konumunu göster
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="recordCalls">
+                            <span class="checkmark"></span>
+                            Aramaları kaydet
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Bildirim Ayarları</h4>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="enableNotifications" checked>
+                            <span class="checkmark"></span>
+                            Bildirimleri etkinleştir
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="soundNotifications" checked>
+                            <span class="checkmark"></span>
+                            Ses bildirimleri
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Veri Yönetimi</h4>
+                    <button class="settings-option" id="exportDataBtn">
+                        <i class="fas fa-download"></i>
+                        <span>Verileri Dışa Aktar</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="settings-option" id="clearHistoryBtn">
+                        <i class="fas fa-trash"></i>
+                        <span>Geçmişi Temizle</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="settings-option danger" id="resetAppBtn">
+                        <i class="fas fa-redo"></i>
+                        <span>Uygulamayı Sıfırla</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Block Number Modal -->
+    <div class="modal" id="blockNumberModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-ban"></i> Numara Engelle</h3>
+                <button class="close-btn" id="closeBlockModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="blockNumberInput">Telefon Numarası</label>
+                    <input type="tel" id="blockNumberInput" placeholder="+90 XXX XXX XX XX">
+                </div>
+                <div class="input-group">
+                    <label for="blockReasonInput">Engelleme Nedeni (İsteğe bağlı)</label>
+                    <select id="blockReasonInput">
+                        <option value="">Neden seçin</option>
+                        <option value="spam">Spam/Reklam</option>
+                        <option value="harassment">Taciz</option>
+                        <option value="unknown">Bilinmeyen numara</option>
+                        <option value="other">Diğer</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" id="cancelBlockBtn">İptal</button>
+                    <button class="btn-primary" id="confirmBlockBtn">Engelle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="./assets/js/arayanDashboard.js"></script>
+
+</body>
+</html>

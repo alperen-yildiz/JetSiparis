@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetArayan - Setup</title>
+    <link rel="stylesheet" href="css/onboarding.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="setup-container">
+        <!-- Left Side - Form Content -->
+        <div class="form-section">
+            <div class="form-content">
+                <!-- Logo -->
+                <div class="logo">
+                    <img src="../assets/JetArayan.png" style="width: 50px; height: 50px;" alt="JetArayan">
+                </div>
+                
+                <!-- Header -->
+                <div class="setup-header">
+                    <h1>JetArayan Setup</h1>
+                    <p>Kurulumu tamamlamak için aşağıdaki adımları takip edin.</p>
+                </div>
+                
+                <!-- Multi-Step Form -->
+                <div class="setup-steps-container">
+                    <!-- Step 1: License Validation -->
+                    <div class="step-content active" id="step1">
+                        <form class="step-form" id="licenseForm">
+                            <div class="form-section-wrapper">
+                                <h3>Lisans Anahtarı</h3>
+                                <p class="form-description">E-postanıza gönderilen lisans anahtarını girin</p>
+                                
+                                <div class="input-group">
+                                    <input type="text" id="licenseKey" placeholder="TCNOWL" maxlength="6" required>
+                                    <div class="license-status" id="licenseStatus">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Doğrulama bekleniyor</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary" id="validateLicense">
+                                        <i class="fas fa-check"></i>
+                                        Lisansı Doğrula
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Step 2: Restaurant Name Input -->
+                    <div class="step-content" id="step2">
+                        <form class="step-form" id="restaurantForm">
+                            <div class="form-section-wrapper">
+                                <h3>Restoran Bilgileri</h3>
+                                <p class="form-description">Restoranınızın adını girin</p>
+                                
+                                <div class="input-group">
+                                    <label for="restaurantName">Restoran Adı</label>
+                                    <input type="text" id="restaurantName" placeholder="Örn: Lezzet Durağı" required>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" class="btn-secondary" id="backToStep1">
+                                        <i class="fas fa-arrow-left"></i>
+                                        Geri
+                                    </button>
+                                    <button type="submit" class="btn-primary" id="completeSetup">
+                                        <i class="fas fa-check"></i>
+                                        Kurulumu Tamamla
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Success Step -->
+                    <div class="step-content" id="successStep">
+                        <div class="success-content">
+                            <div class="success-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <h2>Kurulum Tamamlandı!</h2>
+                            <p>JetArayan başarıyla kuruldu. Artık restoran arayanları yönetmeye başlayabilirsiniz.</p>
+                            
+                            <div class="success-actions">
+                                <button class="btn-primary" id="goToDashboard">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    Dashboard'a Git
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-content">
+                <h2>Quick & Easy Setup</h2>
+                
+                <div class="setup-steps">
+                    <div class="step active">
+                        <div class="step-indicator">
+                            <span class="step-number">1</span>
+                        </div>
+                        <span class="step-text">Lisans Doğrulama</span>
+                        <span class="step-status">ACTIVE</span>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-indicator">
+                            <span class="step-number">2</span>
+                        </div>
+                        <span class="step-text">Restoran Bilgileri</span>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <p>Lisans Almak İster Mısın? <a href="https://jetsiparis.solosolf.com/" target="_blank">Tıkla Hemen Al</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="js/arayanOnboarding.js"></script>
+</body>
+</html>
