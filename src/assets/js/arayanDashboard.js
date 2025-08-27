@@ -46,17 +46,29 @@ class ArayanDashboard {
             this.cancelEditCustomer();
         });
 
-        // Category buttons
-        document.querySelectorAll('.category-btn').forEach(btn => {
+        // Modern Category buttons
+        document.querySelectorAll('.modern-category-tab').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                this.switchCategory(e.target.dataset.category);
+                const category = e.currentTarget.dataset.category;
+                this.switchCategory(category);
             });
         });
 
-        // Product buttons
-        document.querySelectorAll('.product-btn').forEach(btn => {
+        // Modern Product buttons - Plus buttons
+        document.querySelectorAll('.modern-product-card .quantity-btn.plus').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                this.addToCart(e.currentTarget.dataset.product, e.currentTarget.dataset.price);
+                e.stopPropagation();
+                const card = e.target.closest('.modern-product-card');
+                this.addToCart(card.dataset.product, card.dataset.price);
+            });
+        });
+
+        // Modern Product buttons - Minus buttons
+        document.querySelectorAll('.modern-product-card .quantity-btn.minus').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const card = e.target.closest('.modern-product-card');
+                this.changeQuantity(card.dataset.product, -1);
             });
         });
 
@@ -66,6 +78,15 @@ class ArayanDashboard {
         });
         
         document.getElementById('completeOrderBtn')?.addEventListener('click', () => {
+            this.completeOrder();
+        });
+
+        // Modern Cart actions
+        document.querySelector('.modern-clear-btn')?.addEventListener('click', () => {
+            this.clearCart();
+        });
+        
+        document.querySelector('.modern-order-btn')?.addEventListener('click', () => {
             this.completeOrder();
         });
 
@@ -420,16 +441,19 @@ class ArayanDashboard {
 
     // Sipariş yönetimi
     switchCategory(category) {
-        // Kategori butonlarını güncelle
-        document.querySelectorAll('.category-btn').forEach(btn => {
+        // Modern kategori butonlarını güncelle
+        document.querySelectorAll('.modern-category-tab').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelector(`[data-category="${category}"]`).classList.add('active');
+        document.querySelector(`.modern-category-tab[data-category="${category}"]`).classList.add('active');
         
-        // Ürün gruplarını göster/gizle
-        document.querySelectorAll('.product-group').forEach(group => {
+        // Modern ürün gruplarını göster/gizle
+        document.querySelectorAll('.modern-product-group').forEach(group => {
             group.style.display = group.dataset.category === category ? 'grid' : 'none';
         });
+        
+        // Sipariş özetini güncelle
+        this.updateOrderSummary();
     }
 
     addToCart(productName, price) {
@@ -447,54 +471,158 @@ class ArayanDashboard {
         
         this.updateProductCount(productName);
         this.updateCartDisplay();
+        this.updateOrderSummary();
     }
 
     updateProductCount(productName) {
         const countElement = document.getElementById(`count-${productName}`);
         const cartItem = this.cart.find(item => item.name === productName);
         
-        if (countElement && cartItem) {
-            countElement.textContent = cartItem.quantity;
-            countElement.classList.add('visible');
+        if (countElement) {
+            if (cartItem && cartItem.quantity > 0) {
+                countElement.textContent = cartItem.quantity;
+                countElement.style.display = 'flex';
+            } else {
+                countElement.textContent = '0';
+                countElement.style.display = 'none';
+            }
+        }
+    }
+    
+    updateOrderSummary() {
+        const totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        const totalPrice = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        
+        const totalItemsElement = document.querySelector('.total-items');
+        const totalPriceElement = document.querySelector('.total-price');
+        
+        if (totalItemsElement) {
+            totalItemsElement.textContent = `${totalItems} Ürün`;
+        }
+        
+        if (totalPriceElement) {
+            totalPriceElement.textContent = `${totalPrice}₺`;
+        }
+
+        // Modern sepet sayısını güncelle
+        const cartCountElement = document.querySelector('.cart-count');
+        if (cartCountElement) {
+            cartCountElement.textContent = totalItems;
+        }
+
+        // Modern sepet özetini güncelle
+        const subtotalElement = document.querySelector('#subtotalAmount');
+        const totalElement = document.querySelector('#totalAmount');
+        
+        if (subtotalElement) {
+            subtotalElement.textContent = totalPrice + '₺ toplam ücret';
+        }
+        
+        if (totalElement) {
+            totalElement.textContent = totalPrice + '₺ toplam ücret';
+        }
+
+        // Sipariş butonunu aktif/pasif yap
+        const orderBtn = document.querySelector('.modern-order-btn, .order-btn');
+        if (orderBtn) {
+            orderBtn.disabled = totalItems === 0;
+        }
+
+        // Boş sepet durumunu kontrol et
+        const emptyCart = document.querySelector('.modern-empty-cart');
+        const cartItemsContainer = document.querySelector('.modern-cart-items');
+        
+        if (emptyCart && cartItemsContainer) {
+            if (totalItems === 0) {
+                emptyCart.style.display = 'block';
+            } else {
+                emptyCart.style.display = 'none';
+            }
         }
     }
 
     updateCartDisplay() {
+        // Legacy sepet güncellemesi
         const cartItems = document.getElementById('cartItems');
         const totalAmount = document.getElementById('totalAmount');
         const orderBtn = document.getElementById('completeOrderBtn');
         
+        // Modern sepet güncellemesi
+        const modernCartItems = document.querySelector('.modern-cart-items');
+        const modernOrderBtn = document.querySelector('.modern-order-btn');
+        
         if (this.cart.length === 0) {
-            cartItems.innerHTML = `
-                <div class="empty-cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <p>Sepet boş</p>
-                </div>
-            `;
-            totalAmount.textContent = '0₺';
-            orderBtn.disabled = true;
+            // Legacy sepet boş durumu
+            if (cartItems) {
+                cartItems.innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <p>Sepet boş</p>
+                    </div>
+                `;
+            }
+            
+            // Modern sepet boş durumu
+            if (modernCartItems) {
+                modernCartItems.innerHTML = '';
+            }
+            
+            if (totalAmount) totalAmount.textContent = '0₺';
+            if (orderBtn) orderBtn.disabled = true;
+            if (modernOrderBtn) modernOrderBtn.disabled = true;
         } else {
-            cartItems.innerHTML = this.cart.map(item => `
-                <div class="cart-item">
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${item.name}</div>
-                        <div class="cart-item-price">${item.price}₺ x ${item.quantity}</div>
+            // Legacy sepet dolu durumu
+            if (cartItems) {
+                cartItems.innerHTML = this.cart.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">${item.price}₺ x ${item.quantity}</div>
+                        </div>
+                        <div class="cart-item-quantity">
+                            <button class="quantity-btn" onclick="dashboard.changeQuantity('${item.name}', -1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="quantity-display">${item.quantity}</span>
+                            <button class="quantity-btn" onclick="dashboard.changeQuantity('${item.name}', 1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="cart-item-quantity">
-                        <button class="quantity-btn" onclick="dashboard.changeQuantity('${item.name}', -1)">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <span class="quantity-display">${item.quantity}</span>
-                        <button class="quantity-btn" onclick="dashboard.changeQuantity('${item.name}', 1)">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                `).join('');
+            }
+            
+            // Modern sepet dolu durumu
+            if (modernCartItems) {
+                modernCartItems.innerHTML = this.cart.map(item => {
+                    const itemTotal = item.price * item.quantity;
+                    return `
+                    <div class="modern-cart-item">
+                        <div class="modern-cart-item-info">
+                            <div class="modern-cart-item-name">${item.name}</div>
+                            <div class="modern-cart-item-details">
+                                <span class="modern-cart-item-unit-price">Birim: ${item.price}₺</span>
+                                <span class="modern-cart-item-total-price">Toplam: ${itemTotal}₺</span>
+                            </div>
+                        </div>
+                        <div class="modern-cart-item-quantity">
+                            <button class="quantity-btn minus" onclick="dashboard.changeQuantity('${item.name}', -1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="modern-quantity-display">${item.quantity}</span>
+                            <button class="quantity-btn plus" onclick="dashboard.changeQuantity('${item.name}', 1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+                }).join('');
+            }
             
             const total = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            totalAmount.textContent = `${total}₺`;
-            orderBtn.disabled = false;
+            if (totalAmount) totalAmount.textContent = `${total}₺ toplam ücret`;
+            if (orderBtn) orderBtn.disabled = false;
+            if (modernOrderBtn) modernOrderBtn.disabled = false;
         }
     }
 
@@ -506,16 +634,11 @@ class ArayanDashboard {
             
             if (item.quantity <= 0) {
                 this.cart = this.cart.filter(cartItem => cartItem.name !== productName);
-                const countElement = document.getElementById(`count-${productName}`);
-                if (countElement) {
-                    countElement.textContent = '0';
-                    countElement.classList.remove('visible');
-                }
-            } else {
-                this.updateProductCount(productName);
             }
             
+            this.updateProductCount(productName);
             this.updateCartDisplay();
+            this.updateOrderSummary();
         }
     }
 
@@ -523,12 +646,25 @@ class ArayanDashboard {
         this.cart = [];
         
         // Tüm ürün sayaçlarını sıfırla
-        document.querySelectorAll('.product-count').forEach(count => {
+        document.querySelectorAll('.product-quantity').forEach(count => {
             count.textContent = '0';
-            count.classList.remove('visible');
+            count.style.display = 'none';
         });
         
+        // Modern sepet öğelerini temizle
+        const modernCartItems = document.querySelector('.modern-cart-items');
+        if (modernCartItems) {
+            modernCartItems.innerHTML = '';
+        }
+
+        // Legacy sepet öğelerini temizle
+        const cartItems = document.querySelector('.cart-items');
+        if (cartItems) {
+            cartItems.innerHTML = '';
+        }
+        
         this.updateCartDisplay();
+        this.updateOrderSummary();
         this.showNotification('Sepet temizlendi', '');
     }
 
