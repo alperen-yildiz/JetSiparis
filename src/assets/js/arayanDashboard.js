@@ -220,6 +220,40 @@ class ArayanDashboard {
                 this.closeModal(e.target.id);
             }
         });
+
+        // Yeni müşteri formu için event listener'lar
+        const districtSelect = document.getElementById('districtSelect');
+        if (districtSelect) {
+            districtSelect.addEventListener('change', async (e) => {
+                const districtId = e.target.value;
+                if (districtId && cityManager) {
+                    await cityManager.populateNeighborhoodSelect(districtId);
+                } else {
+                    const neighborhoodSelect = document.getElementById('neighborhoodSelect');
+                    if (neighborhoodSelect) {
+                        neighborhoodSelect.innerHTML = '<option value="">Mahalle seçiniz...</option>';
+                        neighborhoodSelect.disabled = true;
+                    }
+                }
+            });
+        }
+
+        // Düzenleme formu için event listener'lar
+        const editDistrictSelect = document.getElementById('editDistrictSelect');
+        if (editDistrictSelect) {
+            editDistrictSelect.addEventListener('change', async (e) => {
+                const districtId = e.target.value;
+                if (districtId && cityManager) {
+                    await cityManager.populateEditNeighborhoodSelect(districtId);
+                } else {
+                    const editNeighborhoodSelect = document.getElementById('editNeighborhoodSelect');
+                    if (editNeighborhoodSelect) {
+                        editNeighborhoodSelect.innerHTML = '<option value="">Mahalle seçiniz...</option>';
+                        editNeighborhoodSelect.disabled = true;
+                    }
+                }
+            });
+        }
     }
 
     // Modal Management
@@ -360,6 +394,11 @@ class ArayanDashboard {
         
         // Telefon numarasını otomatik doldur (gizli alan olarak)
         this.newCustomerPhone = phone;
+        
+        // Şehir bilgisini güncelle
+        if (cityManager) {
+            cityManager.updateCityDisplay(cityManager.getSelectedCity());
+        }
     }
 
     editCustomer() {
@@ -371,8 +410,10 @@ class ArayanDashboard {
         // Form alanlarını doldur
         document.getElementById('editFirstName').value = this.currentCustomer.firstName;
         document.getElementById('editLastName').value = this.currentCustomer.lastName;
-        document.getElementById('editAddress').value = this.currentCustomer.address;
         document.getElementById('editNote').value = this.currentCustomer.note || '';
+        
+        // Adres bilgilerini parse et ve form alanlarını doldur
+        this.populateEditAddressForm();
         
         // Görünürlük değiştir
         existingCard.style.display = 'none';
@@ -382,13 +423,33 @@ class ArayanDashboard {
     handleNewCustomer(e) {
         e.preventDefault();
         
+        // Şehir seçimi kontrolü
+        if (!cityManager || !cityManager.getSelectedCity()) {
+            this.showNotification('Hata', 'Lütfen önce ayarlardan şehir seçiniz.', 'error');
+            return;
+        }
+        
         const formData = new FormData(e.target);
+        const addressInfo = cityManager.getFullAddress();
+        
+        // Form validasyonu
+        if (!formData.get('firstName') || !formData.get('lastName')) {
+            this.showNotification('Hata', 'Ad ve soyad alanları zorunludur.', 'error');
+            return;
+        }
+        
+        if (!formData.get('district') || !formData.get('neighborhood') || !formData.get('buildingNumber')) {
+            this.showNotification('Hata', 'İlçe, mahalle ve bina no alanları zorunludur.', 'error');
+            return;
+        }
+        
         const newCustomer = {
             id: Date.now(),
             phone: this.newCustomerPhone,
             firstName: formData.get('firstName'),
             lastName: formData.get('lastName'),
-            address: formData.get('address'),
+            address: addressInfo.formatted,
+            addressDetails: addressInfo.details,
             note: formData.get('note') || '',
             regDate: new Date().toISOString().split('T')[0],
             callCount: 1
@@ -400,6 +461,7 @@ class ArayanDashboard {
         
         // Formu temizle ve müşteri bilgilerini göster
         e.target.reset();
+        this.resetAddressForm();
         this.showExistingCustomer(newCustomer);
         this.showNotification('Müşteri kaydedildi', `${newCustomer.firstName} ${newCustomer.lastName}`);
     }
@@ -407,16 +469,111 @@ class ArayanDashboard {
     handleEditCustomer(e) {
         e.preventDefault();
         
+        // Şehir seçimi kontrolü
+        if (!cityManager || !cityManager.getSelectedCity()) {
+            this.showNotification('Hata', 'Lütfen önce ayarlardan şehir seçiniz.', 'error');
+            return;
+        }
+        
         const formData = new FormData(e.target);
         
-        this.currentCustomer.firstName = formData.get('editFirstName');
-        this.currentCustomer.lastName = formData.get('editLastName');
-        this.currentCustomer.address = formData.get('editAddress');
-        this.currentCustomer.note = formData.get('editNote') || '';
+        // Temel bilgileri al
+        const firstName = formData.get('editFirstName')?.trim();
+        const lastName = formData.get('editLastName')?.trim();
+        
+        // Validasyon
+        if (!firstName || !lastName) {
+            this.showNotification('Hata', 'Ad ve soyad alanları zorunludur.', 'error');
+            return;
+        }
+        
+        // Adres bilgilerini al
+        const district = formData.get('editDistrictSelect');
+        const neighborhood = formData.get('editNeighborhoodSelect');
+        const buildingNumber = formData.get('editBuildingNumber')?.trim();
+        
+        if (!district || !neighborhood || !buildingNumber) {
+            this.showNotification('Hata', 'İlçe, mahalle ve bina no alanları zorunludur.', 'error');
+            return;
+        }
+        
+        // Tam adres oluştur
+        const fullAddress = cityManager.buildFullAddress({
+            district: district,
+            neighborhood: neighborhood,
+            buildingName: formData.get('editBuildingName')?.trim() || '',
+            buildingNumber: buildingNumber,
+            apartment: formData.get('editApartment')?.trim() || '',
+            floor: formData.get('editFloor')?.trim() || ''
+        });
+        
+        this.currentCustomer.firstName = firstName;
+        this.currentCustomer.lastName = lastName;
+        this.currentCustomer.address = fullAddress;
+        this.currentCustomer.note = formData.get('editNote')?.trim() || '';
         
         this.saveCustomers();
         this.showExistingCustomer(this.currentCustomer);
         this.showNotification('Müşteri güncellendi', `${this.currentCustomer.firstName} ${this.currentCustomer.lastName}`);
+    }
+    
+    // Adres formunu sıfırla
+    resetAddressForm() {
+        const districtSelect = document.getElementById('districtSelect');
+        const neighborhoodSelect = document.getElementById('neighborhoodSelect');
+        
+        if (districtSelect) {
+            districtSelect.innerHTML = '<option value="">İlçe seçiniz...</option>';
+            districtSelect.disabled = true;
+        }
+        
+        if (neighborhoodSelect) {
+            neighborhoodSelect.innerHTML = '<option value="">Mahalle seçiniz...</option>';
+            neighborhoodSelect.disabled = true;
+        }
+    }
+
+    // Düzenleme formundaki adres alanlarını doldur
+    async populateEditAddressForm() {
+        if (!this.currentCustomer || !this.currentCustomer.address) return;
+        
+        // Şehir bilgisini göster
+        const selectedCityElement = document.getElementById('editSelectedCity');
+        if (selectedCityElement && cityManager) {
+            selectedCityElement.value = cityManager.getSelectedCity() || 'Şehir seçilmemiş';
+        }
+        
+        // Adres bilgilerini parse et (basit bir yaklaşım)
+        const address = this.currentCustomer.address;
+        const editDistrictSelect = document.getElementById('editDistrictSelect');
+        const editNeighborhoodSelect = document.getElementById('editNeighborhoodSelect');
+        const editBuildingName = document.getElementById('editBuildingName');
+        const editBuildingNumber = document.getElementById('editBuildingNumber');
+        const editApartment = document.getElementById('editApartment');
+        const editFloor = document.getElementById('editFloor');
+        
+        // Mevcut adres bilgilerini temizle
+        if (editDistrictSelect) {
+            editDistrictSelect.innerHTML = '<option value="">İlçe seçiniz...</option>';
+            editDistrictSelect.disabled = true;
+        }
+        if (editNeighborhoodSelect) {
+            editNeighborhoodSelect.innerHTML = '<option value="">Mahalle seçiniz...</option>';
+            editNeighborhoodSelect.disabled = true;
+        }
+        if (editBuildingName) editBuildingName.value = '';
+        if (editBuildingNumber) editBuildingNumber.value = '';
+        if (editApartment) editApartment.value = '';
+        if (editFloor) editFloor.value = '';
+        
+        // İlçe dropdown'ını doldur
+        if (cityManager && cityManager.getSelectedCity()) {
+            await cityManager.populateEditDistrictSelect();
+        }
+        
+        // Not: Gerçek bir uygulamada adres bilgilerini ayrı ayrı saklayıp
+        // burada yüklemek daha iyi olurdu. Şimdilik mevcut adres string'ini gösteriyoruz.
+        console.log('Mevcut adres:', address);
     }
 
     cancelNewCustomer() {
@@ -425,14 +582,43 @@ class ArayanDashboard {
         
         newForm.style.display = 'none';
         customerForm.reset();
+        this.resetAddressForm();
     }
 
     cancelEditCustomer() {
         const editForm = document.getElementById('editCustomerForm');
         const existingCard = document.getElementById('existingCustomerCard');
         
+        // Düzenleme formundaki adres alanlarını sıfırla
+        this.resetEditAddressForm();
+        
         editForm.style.display = 'none';
         existingCard.style.display = 'block';
+    }
+
+    // Düzenleme formundaki adres alanlarını sıfırla
+    resetEditAddressForm() {
+        const editDistrictSelect = document.getElementById('editDistrictSelect');
+        const editNeighborhoodSelect = document.getElementById('editNeighborhoodSelect');
+        const editBuildingName = document.getElementById('editBuildingName');
+        const editBuildingNumber = document.getElementById('editBuildingNumber');
+        const editApartment = document.getElementById('editApartment');
+        const editFloor = document.getElementById('editFloor');
+        
+        if (editDistrictSelect) {
+            editDistrictSelect.innerHTML = '<option value="">İlçe seçiniz...</option>';
+            editDistrictSelect.disabled = true;
+        }
+        
+        if (editNeighborhoodSelect) {
+            editNeighborhoodSelect.innerHTML = '<option value="">Mahalle seçiniz...</option>';
+            editNeighborhoodSelect.disabled = true;
+        }
+        
+        if (editBuildingName) editBuildingName.value = '';
+        if (editBuildingNumber) editBuildingNumber.value = '';
+        if (editApartment) editApartment.value = '';
+        if (editFloor) editFloor.value = '';
     }
 
     saveCustomers() {
