@@ -2,10 +2,19 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Keys koleksiyonu için okuma izni
-    match /keys/{document} {
-      allow read: if true;
-      allow write: if true; // Test amaçlı, production'da daha kısıtlayıcı olmalı
+    // Keys koleksiyonu ve alt koleksiyonları
+    match /keys/{licenseKey} {
+      allow read, write: if true;
+      
+      // Kategoriler alt koleksiyonu
+      match /categories/{categoryId} {
+        allow read, write: if true;
+        
+        // Ürünler alt koleksiyonu (kategorinin altında)
+        match /products/{productId} {
+          allow read, write: if true;
+        }
+      }
     }
     
     // Diğer tüm koleksiyonlar için erişim engellendi

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetArayan - Ürün Yönetimi</title>
+    <link rel="stylesheet" href="../assets/css/addProduct.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="product-container">
+        <!-- Header -->
+        <header class="product-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1><img src="../assets/JetArayan.png" style="height: 40px; width: 40px;" alt="JetArayan Logo"> JetArayan</h1>
+                    <span class="page-title">Ürün Yönetimi</span>
+                </div>
+                <div class="header-actions">
+                    <div class="license-status" id="licenseStatus">
+                        <span class="status-indicator offline" id="licenseIndicator"></span>
+                        <span class="status-text" id="licenseText">Lisans Kontrol Ediliyor...</span>
+                    </div>
+                    <button class="back-btn" onclick="window.history.back()">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Geri Dön</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="product-main">
+            <!-- Product Management Section -->
+            <section class="management-section" id="managementSection">
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn primary" id="addCategoryBtn">
+                        <i class="fas fa-folder-plus"></i>
+                        <span>Yeni Kategori</span>
+                    </button>
+                    <button class="action-btn secondary" id="addProductBtn">
+                        <i class="fas fa-plus"></i>
+                        <span>Yeni Ürün</span>
+                    </button>
+                    <button class="action-btn info" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Yenile</span>
+                    </button>
+                </div>
+
+                <!-- Categories and Products Grid -->
+                <div class="content-grid">
+                    <!-- Categories List -->
+                    <div class="categories-panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-folder"></i> Kategoriler</h3>
+                            <span class="count-badge" id="categoryCount">0</span>
+                        </div>
+                        <div class="categories-list" id="categoriesList">
+                            <div class="empty-state">
+                                <i class="fas fa-folder-open"></i>
+                                <p>Henüz kategori eklenmemiş</p>
+                                <small>Yeni kategori eklemek için yukarıdaki butonu kullanın</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Products List -->
+                    <div class="products-panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-box"></i> Ürünler</h3>
+                            <div class="panel-controls">
+                                <select id="categoryFilter" class="filter-select">
+                                    <option value="">Tüm Kategoriler</option>
+                                </select>
+                                <span class="count-badge" id="productCount">0</span>
+                            </div>
+                        </div>
+                        <div class="products-list" id="productsList">
+                            <div class="empty-state">
+                                <i class="fas fa-box-open"></i>
+                                <p>Henüz ürün eklenmemiş</p>
+                                <small>Önce bir kategori seçin, sonra ürün ekleyin</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Category Modal -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-folder-plus"></i> <span id="categoryModalTitle">Yeni Kategori Ekle</span></h3>
+                <button class="close-btn" id="closeCategoryModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="categoryForm" class="modal-form">
+                <div class="form-group">
+                    <label for="categoryName">Kategori Adı *</label>
+                    <input type="text" id="categoryName" name="categoryName" required placeholder="Kategori adını giriniz...">
+                </div>
+                <div class="form-group">
+                    <label for="categoryDescription">Açıklama</label>
+                    <textarea id="categoryDescription" name="categoryDescription" rows="3" placeholder="Kategori açıklaması (opsiyonel)..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="categoryColor">Kategori Rengi</label>
+                    <div class="color-picker">
+                        <input type="color" id="categoryColor" name="categoryColor" value="#2563eb">
+                        <span class="color-preview"></span>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelCategoryBtn">İptal</button>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        <span id="categorySaveText">Kaydet</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus"></i> <span id="productModalTitle">Yeni Ürün Ekle</span></h3>
+                <button class="close-btn" id="closeProductModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="productForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productName">Ürün Adı *</label>
+                        <input type="text" id="productName" name="productName" required placeholder="Ürün adını giriniz...">
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Kategori *</label>
+                        <select id="productCategory" name="productCategory" required>
+                            <option value="">Kategori seçiniz...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Fiyat (₺) *</label>
+                    <input type="number" id="productPrice" name="productPrice" required min="0" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Ürün Açıklaması</label>
+                    <textarea id="productDescription" name="productDescription" rows="3" placeholder="Ürün açıklaması (opsiyonel)..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelProductBtn">İptal</button>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        <span id="productSaveText">Kaydet</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>İşlem yapılıyor...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/addProduct.js"></script>
+</body>
+</html>
