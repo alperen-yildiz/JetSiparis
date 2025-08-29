@@ -128,5 +128,11 @@
     </div>
     
     <script type="module" src="js/arayanOnboarding.js"></script>
+    <script>
+        // Fallback for browsers that don't support modules
+        if (!window.HTMLScriptElement.prototype.hasOwnProperty('noModule')) {
+            console.warn('Bu tarayıcı ES6 modüllerini desteklemiyor.');
+        }
+    </script>
 </body>
 </html>

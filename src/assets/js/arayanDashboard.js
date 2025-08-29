@@ -1,6 +1,12 @@
 // JetArayan Dashboard JavaScript
 class ArayanDashboard {
     constructor() {
+        // Kurulum kontrolü - eğer kurulum tamamlanmamışsa onboarding'e yönlendir
+        if (!this.checkSetupComplete()) {
+            window.location.href = './onboarding/arayanOnboarding.html';
+            return;
+        }
+        
         this.currentCall = null;
         this.callHistory = [];
         this.blockedNumbers = [];
@@ -1177,21 +1183,8 @@ class ArayanDashboard {
     }
 
     reportSpam() {
-        if (this.currentCall) {
-            this.showNotification(`${this.currentCall.number} spam olarak bildirildi`, 'success');
-            // Automatically block the number
-            const blockedNumber = {
-                id: Date.now(),
-                number: this.currentCall.number,
-                reason: 'Spam/Reklam',
-                timestamp: new Date()
-            };
-            this.blockedNumbers.push(blockedNumber);
-            this.saveData();
-            this.renderBlockedNumbers();
-        } else {
-            this.showNotification('Bildirilecek arama bulunamadı', 'warning');
-        }
+        // Ürün ekleme sayfasına yönlendir
+        window.location.href = './screen/addProduct.html';
     }
 
     manageBlockedNumbers() {
@@ -1229,22 +1222,30 @@ class ArayanDashboard {
     }
 
     resetApp() {
-        if (confirm('Uygulamayı sıfırlamak istediğinizden emin misiniz? Tüm veriler silinecektir.')) {
+        if (confirm('Uygulamayı sıfırlamak istediğinizden emin misiniz? Tüm veriler silinecektir ve kurulum ekranına yönlendirileceksiniz.')) {
+            // Uygulama verilerini temizle
             this.callHistory = [];
             this.blockedNumbers = [];
             this.currentCall = null;
             this.isOnline = false;
             
+            // Tüm localStorage verilerini temizle
             localStorage.removeItem('jetarayan-data');
+            localStorage.removeItem('jetArayanSetupComplete');
+            localStorage.removeItem('jetArayanSetup');
+            localStorage.removeItem('customers');
             
-            this.updateStats();
-            this.renderCallHistory();
-            this.renderBlockedNumbers();
-            this.updateConnectionStatus();
-            this.hideCurrentCall();
-            
-            this.showNotification('Uygulama başarıyla sıfırlandı', 'success');
+            // Kurulum ekranına yönlendir
+            window.location.href = './onboarding/arayanOnboarding.html';
         }
+    }
+
+    // Kurulum kontrolü
+    checkSetupComplete() {
+        const setupComplete = localStorage.getItem('jetArayanSetupComplete');
+        const setupData = localStorage.getItem('jetArayanSetup');
+        
+        return setupComplete === 'true' && setupData;
     }
 
     // Utility Functions

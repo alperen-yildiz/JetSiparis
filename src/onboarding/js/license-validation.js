@@ -8,25 +8,10 @@ import { getDocuments } from '../../js/firebase-firestore.js';
  */
 export const validateLicenseKey = async (licenseKey) => {
     try {
-        // Lisans anahtarını temizle ve formatla (TCNOWL formatı)
-        const cleanKey = licenseKey.replace(/[^A-Z]/g, '').toUpperCase();
+        // Lisans anahtarını temizle ve formatla
+        const cleanKey = licenseKey.trim().toUpperCase();
         
-        if (cleanKey.length !== 6) {
-            return {
-                success: false,
-                error: 'Geçersiz lisans anahtarı formatı (TCNOWL bekleniyor)',
-                code: 'INVALID_FORMAT'
-            };
-        }
-        
-        // TCNOWL formatı kontrolü
-        if (!validateTCNOWLFormat(cleanKey)) {
-            return {
-                success: false,
-                error: 'Lisans anahtarı TCNOWL formatında olmalıdır',
-                code: 'INVALID_TCNOWL_FORMAT'
-            };
-        }
+        console.log('License validation started for key:', cleanKey);
 
         // Firebase'den keys koleksiyonunda lisans anahtarını ara
         const result = await getDocuments('keys', {
@@ -55,6 +40,9 @@ export const validateLicenseKey = async (licenseKey) => {
         }
 
         const licenseData = result.data[0];
+        console.log('Firebase license data:', licenseData);
+        console.log('License sub value:', licenseData.sub);
+        console.log('License number:', licenseData.number);
 
         // Lisans aktif mi kontrol et
         if (!licenseData.number) {
@@ -67,6 +55,7 @@ export const validateLicenseKey = async (licenseKey) => {
 
         // Plan türünü belirle
         const planType = determinePlanType(licenseData.sub);
+        console.log('Plan type result:', planType);
         
         if (!planType.valid) {
             return {
@@ -96,38 +85,7 @@ export const validateLicenseKey = async (licenseKey) => {
     }
 };
 
-/**
- * TCNOWL formatını doğrular
- * @param {string} key - 6 karakterlik lisans anahtarı
- * @returns {boolean} - Format geçerliliği
- */
-function validateTCNOWLFormat(key) {
-    // TCNOWL formatı: T-C-N-O-W-L harflerinin sırasını kontrol et
-    const expectedPattern = /^[A-Z]{6}$/;
-    
-    if (!expectedPattern.test(key)) {
-        return false;
-    }
-    
-    // TCNOWL harflerinin varlığını kontrol et (sıra önemli değil)
-    const requiredLetters = ['T', 'C', 'N', 'O', 'W', 'L'];
-    const keyLetters = key.split('');
-    
-    // Her harfin bir kez kullanılması gerekiyor
-    for (let letter of requiredLetters) {
-        if (!keyLetters.includes(letter)) {
-            return false;
-        }
-    }
-    
-    // Tekrar eden harf olmamalı
-    const uniqueLetters = [...new Set(keyLetters)];
-    if (uniqueLetters.length !== 6) {
-        return false;
-    }
-    
-    return true;
-}
+// Format kontrolü kaldırıldı - sadece Firebase'den key doğruluğu kontrol ediliyor
 
 /**
  * Plan türünü ve geçerliliğini belirler
@@ -135,8 +93,11 @@ function validateTCNOWLFormat(key) {
  * @returns {Object} - Plan bilgileri
  */
 function determinePlanType(subValue) {
+    console.log('determinePlanType called with subValue:', subValue, 'type:', typeof subValue);
+    
     // Sınırsız plan kontrolü
     if (subValue === 'noLimit') {
+        console.log('Plan type: unlimited');
         return {
             valid: true,
             type: 'unlimited',
@@ -146,16 +107,47 @@ function determinePlanType(subValue) {
 
     // Yıllık plan kontrolü
     try {
-        const expiryDate = new Date(subValue);
+        // Firebase'den gelen tarih formatını normalize et
+        let dateString = subValue;
+        
+        // Eğer Firebase Timestamp objesi ise
+        if (subValue && typeof subValue === 'object' && subValue.seconds) {
+            dateString = new Date(subValue.seconds * 1000).toISOString();
+        }
+        
+        const expiryDate = new Date(dateString);
         const currentDate = new Date();
+        
+        // Tarih geçerliliğini kontrol et
+        if (isNaN(expiryDate.getTime())) {
+            console.log('Invalid date format:', subValue);
+            return {
+                valid: false,
+                error: 'Geçersiz tarih formatı',
+                type: 'invalid'
+            };
+        }
+        
+        // Sadece tarih kısmını karşılaştır (saat bilgisini göz ardı et)
+        const expiryDateOnly = new Date(expiryDate.getFullYear(), expiryDate.getMonth(), expiryDate.getDate());
+        const currentDateOnly = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+        
+        console.log('Original subValue:', subValue);
+        console.log('Parsed expiry date:', expiryDate);
+        console.log('Expiry date (date only):', expiryDateOnly);
+        console.log('Current date (date only):', currentDateOnly);
+        console.log('Is valid (expiry >= current):', expiryDateOnly >= currentDateOnly);
 
-        if (expiryDate > currentDate) {
+        // Bitiş tarihi bugün veya gelecekte ise geçerli
+        if (expiryDateOnly >= currentDateOnly) {
+            console.log('Plan type: yearly (valid)');
             return {
                 valid: true,
                 type: 'yearly',
                 expiryDate: expiryDate
             };
         } else {
+            console.log('Plan type: expired');
             return {
                 valid: false,
                 error: 'Lisans süresi dolmuş',
@@ -163,6 +155,7 @@ function determinePlanType(subValue) {
             };
         }
     } catch (error) {
+        console.log('Plan type: invalid, error:', error);
         return {
             valid: false,
             error: 'Geçersiz abonelik bilgisi',
@@ -171,33 +164,7 @@ function determinePlanType(subValue) {
     }
 }
 
-/**
- * Lisans bilgilerini localStorage'a kaydet
- * @param {Object} licenseData - Lisans verileri
- */
-export const saveLicenseData = (licenseData) => {
-    const licenseInfo = {
-        ...licenseData,
-        validatedAt: new Date().toISOString(),
-        version: '1.0.0'
-    };
-    
-    localStorage.setItem('jetArayanLicense', JSON.stringify(licenseInfo));
-};
-
-/**
- * Kaydedilmiş lisans bilgilerini al
- * @returns {Object|null} - Lisans bilgileri
- */
-export const getSavedLicenseData = () => {
-    try {
-        const savedData = localStorage.getItem('jetArayanLicense');
-        return savedData ? JSON.parse(savedData) : null;
-    } catch (error) {
-        console.error('Lisans bilgileri alınamadı:', error);
-        return null;
-    }
-};
+// saveLicenseData ve getSavedLicenseData fonksiyonları dosyanın sonunda tanımlanmış
 
 /**
  * Lisans durumunu kontrol et
@@ -247,14 +214,45 @@ export const checkLicenseStatus = () => {
 };
 
 /**
+ * Lisans verilerini kaydet
+ * @param {Object} licenseData - Kaydedilecek lisans verileri
+ */
+export const saveLicenseData = (licenseData) => {
+    try {
+        const dataToSave = {
+            ...licenseData,
+            savedAt: new Date().toISOString()
+        };
+        
+        localStorage.setItem('jetArayanLicense', JSON.stringify(dataToSave));
+        console.log('License data saved successfully');
+    } catch (error) {
+        console.error('Error saving license data:', error);
+    }
+};
+
+/**
+ * Kaydedilmiş lisans verilerini al
+ * @returns {Object|null} - Lisans verileri
+ */
+export const getSavedLicenseData = () => {
+    try {
+        const savedData = localStorage.getItem('jetArayanLicense');
+        return savedData ? JSON.parse(savedData) : null;
+    } catch (error) {
+        console.error('Error getting saved license data:', error);
+        return null;
+    }
+};
+
+/**
  * Hata mesajlarını Türkçe'ye çevir
  * @param {string} errorCode - Hata kodu
  * @returns {string} - Türkçe hata mesajı
  */
 export const getErrorMessage = (errorCode) => {
     const errorMessages = {
-        'INVALID_FORMAT': 'Lisans anahtarı 6 harf olmalıdır (TCNOWL formatı).',
-        'INVALID_TCNOWL_FORMAT': 'Lisans anahtarı T, C, N, O, W, L harflerini içermelidir.',
+        'INVALID_FORMAT': 'Lisans anahtarı 6 harf olmalıdır (A-Z harfleri).',
         'DATABASE_ERROR': 'Veritabanı bağlantısında sorun oluştu. Lütfen tekrar deneyin.',
         'KEY_NOT_FOUND': 'Bu lisans anahtarı sistemde bulunamadı.',
         'LICENSE_INACTIVE': 'Bu lisans anahtarı aktif değil.',

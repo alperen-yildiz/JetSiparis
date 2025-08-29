@@ -17,8 +17,15 @@ let currentStep = 1;
 
 // Initialize onboarding
 document.addEventListener('DOMContentLoaded', function() {
-    initializeOnboarding();
-    bindEventListeners();
+    console.log('DOM loaded, initializing onboarding...');
+    try {
+        initializeOnboarding();
+        bindEventListeners();
+        console.log('Onboarding initialized successfully');
+    } catch (error) {
+        console.error('Onboarding initialization error:', error);
+        showNotification('Sayfa yüklenirken bir hata oluştu. Sayfayı yenileyin.', 'error');
+    }
 });
 
 /**
@@ -42,36 +49,63 @@ function initializeOnboarding() {
  * Bind event listeners
  */
 function bindEventListeners() {
-    // License form submission
-    licenseForm.addEventListener('submit', handleLicenseValidation);
+    console.log('Binding event listeners...');
     
-    // Restaurant form submission
-    restaurantForm.addEventListener('submit', handleRestaurantSubmission);
-    
-    // Navigation buttons
-    backToStep1Btn.addEventListener('click', () => showStep(1));
-    goToDashboardBtn.addEventListener('click', goToDashboard);
-    
-    // License key formatting
-    licenseKeyInput.addEventListener('input', formatLicenseKey);
-    
-    // Restaurant name validation
-    restaurantNameInput.addEventListener('input', validateRestaurantName);
-    
-    // Keyboard navigation
-    document.addEventListener('keydown', handleKeyboardNavigation);
+    try {
+        // License form submission
+        if (licenseForm) {
+            licenseForm.addEventListener('submit', handleLicenseValidation);
+            console.log('License form event listener added');
+        } else {
+            console.error('License form not found!');
+        }
+        
+        // Restaurant form submission
+        if (restaurantForm) {
+            restaurantForm.addEventListener('submit', handleRestaurantSubmission);
+        }
+        
+        // Navigation buttons
+        if (backToStep1Btn) {
+            backToStep1Btn.addEventListener('click', () => showStep(1));
+        }
+        if (goToDashboardBtn) {
+            goToDashboardBtn.addEventListener('click', goToDashboard);
+        }
+        
+        // License key formatting
+        if (licenseKeyInput) {
+            licenseKeyInput.addEventListener('input', formatLicenseKey);
+        }
+        
+        // Restaurant name validation
+        if (restaurantNameInput) {
+            restaurantNameInput.addEventListener('input', validateRestaurantName);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', handleKeyboardNavigation);
+        
+        console.log('All event listeners bound successfully');
+    } catch (error) {
+        console.error('Error binding event listeners:', error);
+        showNotification('Olay dinleyicileri bağlanırken hata oluştu.', 'error');
+    }
 }
 
 /**
  * Handle license validation
  */
 async function handleLicenseValidation(e) {
+    console.log('License validation started');
     e.preventDefault();
     
     const licenseKey = licenseKeyInput.value.trim();
+    console.log('License key entered:', licenseKey);
     
-    if (!licenseKey || licenseKey.length < 6) {
-        showNotification('Geçerli bir lisans anahtarı girin (TCNOWL formatı)', 'error');
+    if (!licenseKey) {
+        console.warn('License key is empty');
+        showNotification('Lütfen lisans anahtarınızı girin', 'error');
         return;
     }
     
@@ -81,11 +115,14 @@ async function handleLicenseValidation(e) {
     updateLicenseStatus('checking');
     
     try {
+        console.log('Calling validateLicenseKey function...');
         // Firebase'den lisans doğrulama
         const result = await validateLicenseKey(licenseKey);
+        console.log('License validation result:', result);
         
         if (result.success) {
             // Lisans geçerli
+            console.log('License is valid, proceeding to step 2');
             updateLicenseStatus('valid');
             saveLicenseData(result.data);
             
@@ -153,14 +190,7 @@ function handleRestaurantSubmission(e) {
     }, 1500);
 }
 
-/**
- * Validate license key format (client-side validation)
- */
-function validateLicenseFormat(licenseKey) {
-    // TCNOWL formatı: 6 harf, sadece A-Z
-    const validFormat = /^[A-Z]{6}$/;
-    return validFormat.test(licenseKey);
-}
+// Client-side format kontrolü kaldırıldı - sadece Firebase'den key doğruluğu kontrol ediliyor
 
 /**
  * Update license status display
@@ -199,16 +229,11 @@ function formatLicenseKeyInput() {
 }
 
 /**
- * Format license key for TCNOWL format
+ * Format license key input
  */
 function formatLicenseKey(e) {
-    // Sadece harflere izin ver ve büyük harfe çevir
-    let value = e.target.value.replace(/[^A-Z]/gi, '').toUpperCase();
-    
-    // Maksimum 6 karakter
-    if (value.length > 6) {
-        value = value.substring(0, 6);
-    }
+    // Sadece boşlukları temizle ve büyük harfe çevir
+    let value = e.target.value.trim().toUpperCase();
     
     e.target.value = value;
 }
