@@ -1,4 +1,7 @@
 // JetArayan Dashboard JavaScript
+// Firebase müşteri yönetimi için customerManager'ı import et
+import customerManager from '../../js/customerManager.js';
+
 class ArayanDashboard {
     constructor() {
         // Kurulum kontrolü - eğer kurulum tamamlanmamışsa onboarding'e yönlendir
@@ -313,7 +316,7 @@ class ArayanDashboard {
                     callCount: 2
                 }
             ];
-            this.saveCustomers();
+            // Firebase entegrasyonu ile artık gerekli değil
         }
     }
 
@@ -352,18 +355,26 @@ class ArayanDashboard {
         }
     }
 
-    queryCustomer(phone) {
-        // Sunucu sorgulaması simülasyonu
-        const customer = this.customers.find(c => c.phone === phone);
-        
-        if (customer) {
-            this.showExistingCustomer(customer);
-            this.currentCustomer = customer;
-            // Arama sayısını artır
-            customer.callCount++;
-            this.saveCustomers();
-        } else {
+    async queryCustomer(phone) {
+        try {
+            // Loading göster
+            this.showLoadingState();
+            
+            // Firebase'den müşteri sorgula
+            const result = await customerManager.queryCustomerByPhone(phone);
+            
+            if (result.found) {
+                this.showExistingCustomer(result.customer);
+                this.currentCustomer = result.customer;
+            } else {
+                this.showNewCustomerForm(phone);
+            }
+        } catch (error) {
+            console.error('Müşteri sorgulama hatası:', error);
+            this.showNotification('Hata', 'Müşteri sorgulanırken bir hata oluştu.', 'error');
             this.showNewCustomerForm(phone);
+        } finally {
+            this.hideLoadingState();
         }
     }
 
@@ -432,7 +443,7 @@ class ArayanDashboard {
         editForm.style.display = 'block';
     }
 
-    handleNewCustomer(e) {
+    async handleNewCustomer(e) {
         e.preventDefault();
         
         // Şehir seçimi kontrolü
@@ -455,30 +466,42 @@ class ArayanDashboard {
             return;
         }
         
-        const newCustomer = {
-            id: Date.now(),
-            phone: this.newCustomerPhone,
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            address: addressInfo.formatted,
-            addressDetails: addressInfo.details,
-            note: formData.get('note') || '',
-            regDate: new Date().toISOString().split('T')[0],
-            callCount: 1
-        };
-        
-        this.customers.push(newCustomer);
-        this.saveCustomers();
-        this.currentCustomer = newCustomer;
-        
-        // Formu temizle ve müşteri bilgilerini göster
-        e.target.reset();
-        this.resetAddressForm();
-        this.showExistingCustomer(newCustomer);
-        this.showNotification('Müşteri kaydedildi', `${newCustomer.firstName} ${newCustomer.lastName}`);
+        try {
+            // Loading göster
+            this.showLoadingState();
+            
+            const customerData = {
+                phone: this.newCustomerPhone,
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                address: addressInfo.formatted,
+                addressDetails: addressInfo.details,
+                note: formData.get('note') || ''
+            };
+            
+            // Firebase'e kaydet
+            const result = await customerManager.saveNewCustomer(customerData);
+            
+            if (result.success) {
+                this.currentCustomer = result.customer;
+                
+                // Formu temizle ve müşteri bilgilerini göster
+                e.target.reset();
+                this.resetAddressForm();
+                this.showExistingCustomer(result.customer);
+                this.showNotification('Başarılı', `${result.customer.firstName} ${result.customer.lastName} kaydedildi.`, 'success');
+            } else {
+                this.showNotification('Hata', `Müşteri kaydedilemedi: ${result.error}`, 'error');
+            }
+        } catch (error) {
+            console.error('Müşteri kaydetme hatası:', error);
+            this.showNotification('Hata', 'Müşteri kaydedilirken bir hata oluştu.', 'error');
+        } finally {
+            this.hideLoadingState();
+        }
     }
 
-    handleEditCustomer(e) {
+    async handleEditCustomer(e) {
         e.preventDefault();
         
         // Şehir seçimi kontrolü
@@ -510,25 +533,54 @@ class ArayanDashboard {
             return;
         }
         
-        // Tam adres oluştur
-        const fullAddress = cityManager.buildFullAddress({
-            district: district,
-            neighborhood: neighborhood,
-            street: street,
-            buildingName: formData.get('editBuildingName')?.trim() || '',
-            buildingNumber: buildingNumber,
-            apartment: formData.get('editApartment')?.trim() || '',
-            floor: formData.get('editFloor')?.trim() || ''
-        });
-        
-        this.currentCustomer.firstName = firstName;
-        this.currentCustomer.lastName = lastName;
-        this.currentCustomer.address = fullAddress;
-        this.currentCustomer.note = formData.get('editNote')?.trim() || '';
-        
-        this.saveCustomers();
-        this.showExistingCustomer(this.currentCustomer);
-        this.showNotification('Müşteri güncellendi', `${this.currentCustomer.firstName} ${this.currentCustomer.lastName}`);
+        try {
+            // Loading göster
+            this.showLoadingState();
+            
+            // Tam adres oluştur
+            const addressDetails = {
+                district: district,
+                neighborhood: neighborhood,
+                street: street,
+                buildingName: formData.get('editBuildingName')?.trim() || '',
+                buildingNumber: buildingNumber,
+                apartment: formData.get('editApartment')?.trim() || '',
+                floor: formData.get('editFloor')?.trim() || '',
+                city: cityManager.getSelectedCity()
+            };
+            
+            const fullAddress = customerManager.formatAddress(addressDetails);
+            
+            const updateData = {
+                firstName: firstName,
+                lastName: lastName,
+                address: fullAddress,
+                addressDetails: addressDetails,
+                note: formData.get('editNote')?.trim() || ''
+            };
+            
+            // Firebase'de güncelle
+            const result = await customerManager.updateCustomer(this.currentCustomer.id, updateData);
+            
+            if (result.success) {
+                // Local customer objesini güncelle
+                this.currentCustomer.firstName = firstName;
+                this.currentCustomer.lastName = lastName;
+                this.currentCustomer.address = fullAddress;
+                this.currentCustomer.addressDetails = addressDetails;
+                this.currentCustomer.note = updateData.note;
+                
+                this.showExistingCustomer(this.currentCustomer);
+                this.showNotification('Başarılı', `${this.currentCustomer.firstName} ${this.currentCustomer.lastName} güncellendi.`, 'success');
+            } else {
+                this.showNotification('Hata', `Müşteri güncellenemedi: ${result.error}`, 'error');
+            }
+        } catch (error) {
+            console.error('Müşteri güncelleme hatası:', error);
+            this.showNotification('Hata', 'Müşteri güncellenirken bir hata oluştu.', 'error');
+        } finally {
+            this.hideLoadingState();
+        }
     }
     
     // Adres formunu sıfırla
@@ -635,8 +687,38 @@ class ArayanDashboard {
         if (editFloor) editFloor.value = '';
     }
 
-    saveCustomers() {
-        localStorage.setItem('customers', JSON.stringify(this.customers));
+    // saveCustomers fonksiyonu Firebase entegrasyonu ile kaldırıldı
+
+    // Loading state yönetimi
+    showLoadingState() {
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'loadingOverlay';
+        loadingOverlay.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>İşlem yapılıyor...</p>
+            </div>
+        `;
+        loadingOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        `;
+        document.body.appendChild(loadingOverlay);
+    }
+
+    hideLoadingState() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove();
+        }
     }
 
     // Sipariş yönetimi
@@ -868,33 +950,70 @@ class ArayanDashboard {
         this.showNotification('Sepet temizlendi', '');
     }
 
-    completeOrder() {
+    async completeOrder() {
         if (this.cart.length === 0 || !this.currentCustomer) return;
         
-        const order = {
-            id: Date.now(),
-            customer: this.currentCustomer,
-            items: [...this.cart],
-            total: this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-            date: new Date().toISOString(),
-            phone: this.currentCall.number
-        };
+        // currentCall kontrolü ekle
+        if (!this.currentCall || !this.currentCall.number) {
+            this.showNotification('Hata', 'Geçerli bir arama bulunamadı.', 'error');
+            return;
+        }
         
-        // Siparişi kaydet
-        const orders = JSON.parse(localStorage.getItem('orders')) || [];
-        orders.push(order);
-        localStorage.setItem('orders', JSON.stringify(orders));
-        
-        // Sepeti temizle
-        this.clearCart();
-        
-        // Arama geçmişine ekle
-        this.addToCallHistory();
-        
-        this.showNotification('Sipariş tamamlandı', `Toplam: ${order.total}₺`);
-        
-        // Arama sonlandır
-        this.endCall();
+        try {
+            // Loading göster
+            this.showLoadingState();
+            
+            const orderData = {
+                items: this.cart.map(item => ({
+                    productName: item.name,
+                    quantity: item.quantity,
+                    unit: item.unit || 'adet',
+                    unitPrice: item.price,
+                    productId: item.id || null
+                })),
+                total: this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                phone: this.currentCall.number,
+                status: 'pending',
+                notes: ''
+            };
+            
+            // Firebase'e sipariş kaydet
+            const result = await customerManager.addCustomerOrder(this.currentCustomer.id, orderData);
+            
+            if (result.success) {
+                // Yerel depolama için de kaydet (eski sistem uyumluluğu)
+                const order = {
+                    id: result.orderId,
+                    customer: this.currentCustomer,
+                    items: [...this.cart],
+                    total: orderData.total,
+                    date: new Date().toISOString(),
+                    phone: this.currentCall ? this.currentCall.number : 'Bilinmiyor'
+                };
+                
+                const orders = JSON.parse(localStorage.getItem('orders')) || [];
+                orders.push(order);
+                localStorage.setItem('orders', JSON.stringify(orders));
+                
+                // Sepeti temizle
+                this.clearCart();
+                
+                // Arama geçmişine ekle
+                this.addToCallHistory();
+                
+                this.showNotification('Sipariş tamamlandı', `Toplam: ${orderData.total}₺`, 'success');
+                
+                // Arama sonlandır
+                this.endCall();
+            } else {
+                this.showNotification('Hata', `Sipariş kaydedilemedi: ${result.error}`, 'error');
+            }
+        } catch (error) {
+            console.error('Sipariş tamamlama hatası:', error);
+            this.showNotification('Hata', 'Sipariş kaydedilirken bir hata oluştu.', 'error');
+        } finally {
+            this.hideLoadingState();
+        }
     }
 
     endCall() {
@@ -1036,8 +1155,8 @@ class ArayanDashboard {
                         <i class="${iconClass}"></i>
                     </div>
                     <div class="call-info">
-                        <h4>${call.caller.name}</h4>
-                        <p>${call.caller.number}</p>
+                        <h4>${call.caller?.name || 'Bilinmeyen'}</h4>
+                        <p>${call.caller?.number || call.number || 'Numara yok'}</p>
                     </div>
                     <div class="call-time">
                         <div>${timeAgo}</div>
@@ -1444,8 +1563,32 @@ style.textContent = `
         color: #64748b;
         font-style: italic;
     }
+    
+    .loading-spinner {
+        text-align: center;
+        color: white;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 `;
 document.head.appendChild(style);
+
+// Global variables
+window.dashboard = null;
+window.customerManager = customerManager;
 
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -1458,10 +1601,4 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('callStatus').addEventListener('click', () => {
         dashboard.toggleConnectionStatus();
     });
-});
-
-// Global function for cart quantity changes
-window.dashboard = null;
-document.addEventListener('DOMContentLoaded', function() {
-    window.dashboard = new ArayanDashboard();
 });

@@ -15,6 +15,16 @@ service cloud.firestore {
           allow read, write: if true;
         }
       }
+      
+      // Müşteriler alt koleksiyonu
+      match /customers/{customerId} {
+        allow read, write: if true;
+        
+        // Siparişler alt koleksiyonu (müşterinin altında)
+        match /orders/{orderId} {
+          allow read, write: if true;
+        }
+      }
     }
     
     // Diğer tüm koleksiyonlar için erişim engellendi
