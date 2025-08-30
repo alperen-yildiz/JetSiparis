@@ -23,6 +23,12 @@
     ],
     "security": {
       "csp": null
+    },
+    "trayIcon": {
+      "iconPath": "icons/icon.ico",
+      "iconAsTemplate": false,
+      "menuOnLeftClick": false,
+      "tooltip": "JetSiparış - Arka planda çalışıyor"
     }
   },
   "bundle": {
