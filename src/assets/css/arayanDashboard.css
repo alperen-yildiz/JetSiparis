@@ -79,77 +79,188 @@ body {
     gap: 16px;
 }
 
-/* COM Port Section Styles */
+/* COM Port Section Styles - Modern & Professional */
 .com-port-section {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #fff;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.com-port-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--main-color), #3b82f6, #06b6d4);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.com-port-section:hover {
+    border-color: #c7d2fe;
+    transform: translateY(-1px);
+}
+
+.com-port-section:hover::before {
+    opacity: 1;
 }
 
 .com-port-label {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #64748b;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
     white-space: nowrap;
+    letter-spacing: -0.025em;
 }
 
 .com-port-label i {
-    color: var(--main-color);
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--main-color), #3b82f6);
+    color: white;
+    border-radius: 6px;
+    font-size: 10px;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }
 
 .com-port-select {
-    padding: 6px 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    padding: 10px 14px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
     background: white;
-    font-size: 13px;
-    color: #374151;
-    min-width: 120px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2937;
+    min-width: 140px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
 }
 
 .com-port-select:focus {
     outline: none;
     border-color: var(--main-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12), 0 2px 8px rgba(37, 99, 235, 0.15);
+    transform: translateY(-1px);
 }
 
 .com-port-select:hover {
     border-color: #9ca3af;
-}
-
-.refresh-ports-btn {
-    padding: 6px 8px;
-    background: var(--main-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.refresh-ports-btn:hover {
-    background: #1d4ed8;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transform: translateY(-1px);
 }
 
+.com-port-select option {
+    padding: 8px;
+    font-weight: 500;
+}
+
+.refresh-ports-btn {
+    padding: 10px 12px;
+    background: linear-gradient(135deg, var(--main-color), #3b82f6);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25), 0 1px 3px rgba(37, 99, 235, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.refresh-ports-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.refresh-ports-btn:hover {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35), 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+.refresh-ports-btn:hover::before {
+    left: 100%;
+}
+
 .refresh-ports-btn:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
 .refresh-ports-btn i {
-    font-size: 12px;
+    font-size: 13px;
+    transition: transform 0.3s ease;
+}
+
+.refresh-ports-btn:hover i {
+    transform: rotate(180deg);
+}
+
+/* Loading state for refresh button */
+.refresh-ports-btn.loading {
+    pointer-events: none;
+}
+
+.refresh-ports-btn.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+
+.com-port-section.connected::before {
+    background: linear-gradient(90deg, #10b981, #059669);
+    opacity: 1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .com-port-section {
+        gap: 8px;
+        padding: 10px 12px;
+    }
+    
+    .com-port-label {
+        font-size: 13px;
+    }
+    
+    .com-port-select {
+        min-width: 120px;
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+    
+    .refresh-ports-btn {
+        padding: 8px 10px;
+    }
 }
 
 .call-status {
@@ -2624,77 +2735,7 @@ body {
     font-weight: 500;
 }
 
-/* Calls List */
-.calls-list {
-    background: white;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    overflow: hidden;
-}
 
-.call-item {
-    display: flex;
-    align-items: center;
-    padding: 16px 24px;
-    border-bottom: 1px solid #f1f5f9;
-    transition: all 0.2s ease;
-}
-
-.call-item:last-child {
-    border-bottom: none;
-}
-
-.call-item:hover {
-    background: #f8fafc;
-}
-
-.call-type-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 16px;
-    font-size: 16px;
-}
-
-.call-type-icon.incoming {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success-color);
-}
-
-.call-type-icon.outgoing {
-    background: rgba(37, 99, 235, 0.1);
-    color: var(--main-color);
-}
-
-.call-type-icon.missed {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger-color);
-}
-
-.call-info {
-    flex: 1;
-}
-
-.call-info h4 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 4px;
-}
-
-.call-info p {
-    font-size: 14px;
-    color: #64748b;
-}
-
-.call-time {
-    font-size: 14px;
-    color: #64748b;
-    text-align: right;
-}
 
 
 

@@ -31,7 +31,7 @@ class ArayanDashboard {
         this.loadData();
         this.bindEvents();
         this.updateStats();
-        this.renderCallHistory();
+
         this.updateConnectionStatus();
         this.initializeCustomerManagement();
     }
@@ -142,12 +142,7 @@ class ArayanDashboard {
             });
         }
 
-        const viewAllCallsBtn = document.getElementById('viewAllCallsBtn');
-        if (viewAllCallsBtn) {
-            viewAllCallsBtn.addEventListener('click', () => {
-                this.showCallHistory();
-            });
-        }
+
 
 
 
@@ -1096,52 +1091,12 @@ class ArayanDashboard {
             }
             
             this.saveData();
-            this.renderCallHistory();
+
             this.updateStats();
         }
     }
 
-    renderCallHistory() {
-        const callsList = document.getElementById('callsList');
-        
-        if (this.callHistory.length === 0) {
-            callsList.innerHTML = '<div class="empty-state"><p>Henüz arama geçmişi bulunmuyor.</p></div>';
-            return;
-        }
-        
-        const recentCalls = this.callHistory.slice(0, 5); // Show only last 5 calls
-        
-        callsList.innerHTML = recentCalls.map(call => {
-            const iconClass = this.getCallIconClass(call.status);
-            const timeAgo = this.getTimeAgo(call.timestamp);
-            
-            return `
-                <div class="call-item">
-                    <div class="call-type-icon ${call.status}">
-                        <i class="${iconClass}"></i>
-                    </div>
-                    <div class="call-info">
-                        <h4>${call.caller?.name || 'Bilinmeyen'}</h4>
-                        <p>${call.caller?.number || call.number || 'Numara yok'}</p>
-                    </div>
-                    <div class="call-time">
-                        <div>${timeAgo}</div>
-                        <div style="font-size: 12px; color: #94a3b8;">${call.duration}</div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
 
-    getCallIconClass(status) {
-        switch (status) {
-            case 'answered': return 'fas fa-phone-volume';
-            case 'declined': return 'fas fa-phone-slash';
-            case 'missed': return 'fas fa-phone-times';
-            case 'outgoing': return 'fas fa-phone';
-            default: return 'fas fa-phone';
-        }
-    }
 
     // Block Number Management
 
@@ -1186,10 +1141,7 @@ class ArayanDashboard {
         }
     }
 
-    showCallHistory() {
-        this.showNotification('Arama geçmişi açılıyor...', 'info');
-        // Here you would typically open a detailed call history view
-    }
+
 
     reportSpam() {
         // Ürün ekleme sayfasına yönlendir
@@ -1220,7 +1172,7 @@ class ArayanDashboard {
         if (confirm('Tüm arama geçmişini silmek istediğinizden emin misiniz?')) {
             this.callHistory = [];
             this.saveData();
-            this.renderCallHistory();
+
             this.updateStats();
             this.showNotification('Arama geçmişi temizlendi', 'info');
         }

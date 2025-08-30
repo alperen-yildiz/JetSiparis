@@ -20,7 +20,7 @@
                 <div class="user-section">
                     <div class="com-port-section">
                         <label for="comPortSelect" class="com-port-label">
-                            <i class="fas fa-usb"></i>
+                            <i class="fa-brands fa-usb"></i>
                             COM Port:
                         </label>
                         <select id="comPortSelect" class="com-port-select">
@@ -568,20 +568,7 @@
                 </div>
             </section>
 
-            <!-- Recent Calls -->
-            <section class="calls-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-list"></i> Son Aramalar</h2>
-                    <button class="view-all-btn" id="viewAllCallsBtn">
-                        <i class="fas fa-external-link-alt"></i>
-                        Tümünü Gör
-                    </button>
-                </div>
-                
-                <div class="calls-list" id="callsList">
-                    <!-- Calls will be dynamically generated -->
-                </div>
-            </section>
+
 
 
         </main>
@@ -596,32 +583,7 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="settings-section">
-                    <h4>Arama Ayarları</h4>
-                    <div class="setting-item">
-                        <label class="setting-label">
-                            <input type="checkbox" id="autoBlockSpam" checked>
-                            <span class="checkmark"></span>
-                            Spam aramaları otomatik engelle
-                        </label>
-                    </div>
-                    <div class="setting-item">
-                        <label class="setting-label">
-                            <input type="checkbox" id="showCallerLocation" checked>
-                            <span class="checkmark"></span>
-                            Arayan konumunu göster
-                        </label>
-                    </div>
-                    <div class="setting-item">
-                        <label class="setting-label">
-                            <input type="checkbox" id="recordCalls">
-                            <span class="checkmark"></span>
-                            Aramaları kaydet
-                        </label>
-                    </div>
-                </div>
-                
+            <div class="modal-body">    
                 <div class="settings-section">
                     <h4>Bildirim Ayarları</h4>
                     <div class="setting-item">
@@ -656,16 +618,6 @@
                 
                 <div class="settings-section">
                     <h4>Veri Yönetimi</h4>
-                    <button class="settings-option" id="exportDataBtn">
-                        <i class="fas fa-download"></i>
-                        <span>Verileri Dışa Aktar</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                    <button class="settings-option" id="clearHistoryBtn">
-                        <i class="fas fa-trash"></i>
-                        <span>Geçmişi Temizle</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
                     <button class="settings-option danger" id="resetAppBtn">
                         <i class="fas fa-redo"></i>
                         <span>Uygulamayı Sıfırla</span>

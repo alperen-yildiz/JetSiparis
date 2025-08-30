@@ -90,29 +90,19 @@ class ComPortManager {
     async refreshPorts() {
         console.log('COM Portları yenileniyor...');
         
-        // Refresh butonuna animasyon ekle
-        const icon = this.refreshPortsBtn.querySelector('i');
-        icon.style.animation = 'spin 1s linear';
+        // Loading state'i aktif et
+        this.refreshPortsBtn.classList.add('loading');
+        this.refreshPortsBtn.disabled = true;
         
-        // CSS animasyonu ekle
-        if (!document.querySelector('#spin-animation')) {
-            const style = document.createElement('style');
-            style.id = 'spin-animation';
-            style.textContent = `
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-            `;
-            document.head.appendChild(style);
+        try {
+            await this.loadComPorts();
+        } finally {
+            // Loading state'i kaldır
+            setTimeout(() => {
+                this.refreshPortsBtn.classList.remove('loading');
+                this.refreshPortsBtn.disabled = false;
+            }, 500);
         }
-        
-        await this.loadComPorts();
-        
-        // Animasyonu durdur
-        setTimeout(() => {
-            icon.style.animation = '';
-        }, 1000);
     }
 
     /**
@@ -175,6 +165,34 @@ class ComPortManager {
             this.comPortSelect.value = portName;
             this.selectedPort = portName;
             this.onPortSelected(portName);
+        }
+    }
+
+    /**
+     * Port bağlantı durumunu günceller
+     */
+    setConnectionStatus(isConnected) {
+        if (this.comPortSection) {
+            if (isConnected) {
+                this.comPortSection.classList.add('connected');
+            } else {
+                this.comPortSection.classList.remove('connected');
+            }
+        }
+    }
+
+    /**
+     * Port seçim arayüzünü aktif/pasif yapar
+     */
+    setEnabled(enabled) {
+        if (this.comPortSelect) {
+            this.comPortSelect.disabled = !enabled;
+        }
+        if (this.refreshPortsBtn) {
+            this.refreshPortsBtn.disabled = !enabled;
+        }
+        if (this.comPortSection) {
+            this.comPortSection.style.opacity = enabled ? '1' : '0.6';
         }
     }
 }
