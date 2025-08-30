@@ -203,13 +203,25 @@
                                         </div>
                                     </div>
                                     
+                                    <!-- Sokak/Cadde Bilgisi -->
+                                    <div class="form-row">
+                                        <div class="modern-form-group">
+                                            <div class="input-wrapper">
+                                                <i class="fas fa-road input-icon"></i>
+                                                <input type="text" id="street" name="street" required placeholder=" ">
+                                                <label for="street" class="floating-label">Sokak/Cadde <span class="required">*</span></label>
+                                                <div class="input-border"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
                                     <!-- Bina Bilgileri -->
                                     <div class="form-row">
                                         <div class="modern-form-group">
                                             <div class="input-wrapper">
                                                 <i class="fas fa-building input-icon"></i>
-                                                <input type="text" id="buildingName" name="buildingName" placeholder=" ">
-                                                <label for="buildingName" class="floating-label">Bina Adı</label>
+                                                <input type="text" id="buildingName" name="buildingName" required placeholder=" ">
+                                                <label for="buildingName" class="floating-label">Bina Adı <span class="required">*</span></label>
                                                 <div class="input-border"></div>
                                             </div>
                                         </div>
@@ -229,8 +241,8 @@
                                         <div class="modern-form-group">
                                             <div class="input-wrapper">
                                                 <i class="fas fa-door-open input-icon"></i>
-                                                <input type="text" id="apartment" name="apartment" placeholder=" ">
-                                                <label for="apartment" class="floating-label">Daire</label>
+                                                <input type="text" id="apartment" name="apartment" required placeholder=" ">
+                                                <label for="apartment" class="floating-label">Daire <span class="required">*</span></label>
                                                 <div class="input-border"></div>
                                             </div>
                                         </div>
@@ -238,8 +250,8 @@
                                         <div class="modern-form-group">
                                             <div class="input-wrapper">
                                                 <i class="fas fa-layer-group input-icon"></i>
-                                                <input type="number" id="floor" name="floor" placeholder=" ">
-                                                <label for="floor" class="floating-label">Kat</label>
+                                                <input type="number" id="floor" name="floor" required placeholder=" ">
+                                                <label for="floor" class="floating-label">Kat <span class="required">*</span></label>
                                                 <div class="input-border"></div>
                                             </div>
                                         </div>
@@ -336,12 +348,22 @@
                                     </div>
                                 </div>
 
+                                <!-- Sokak/Cadde -->
+                                <div class="modern-form-group">
+                                    <div class="input-wrapper">
+                                        <input type="text" id="editStreet" name="editStreet" placeholder=" " required>
+                                        <i class="fas fa-road input-icon"></i>
+                                        <label class="floating-label">Sokak/Cadde <span class="required">*</span></label>
+                                        <div class="input-border"></div>
+                                    </div>
+                                </div>
+
                                 <!-- Bina Adı -->
                                 <div class="modern-form-group">
                                     <div class="input-wrapper">
-                                        <input type="text" id="editBuildingName" name="editBuildingName" placeholder=" ">
+                                        <input type="text" id="editBuildingName" name="editBuildingName" placeholder=" " required>
                                         <i class="fas fa-building input-icon"></i>
-                                        <label class="floating-label">Bina Adı</label>
+                                        <label class="floating-label">Bina Adı <span class="required">*</span></label>
                                         <div class="input-border"></div>
                                     </div>
                                 </div>
@@ -351,7 +373,7 @@
                                     <div class="input-wrapper">
                                         <input type="number" id="editBuildingNumber" name="editBuildingNumber" placeholder=" " required>
                                         <i class="fas fa-hashtag input-icon"></i>
-                                        <label class="floating-label">Bina No *</label>
+                                        <label class="floating-label">Bina No <span class="required">*</span></label>
                                         <div class="input-border"></div>
                                     </div>
                                 </div>
@@ -359,9 +381,9 @@
                                 <!-- Daire -->
                                 <div class="modern-form-group">
                                     <div class="input-wrapper">
-                                        <input type="text" id="editApartment" name="editApartment" placeholder=" ">
+                                        <input type="text" id="editApartment" name="editApartment" placeholder=" " required>
                                         <i class="fas fa-door-open input-icon"></i>
-                                        <label class="floating-label">Daire</label>
+                                        <label class="floating-label">Daire <span class="required">*</span></label>
                                         <div class="input-border"></div>
                                     </div>
                                 </div>
@@ -369,9 +391,9 @@
                                 <!-- Kat -->
                                 <div class="modern-form-group">
                                     <div class="input-wrapper">
-                                        <input type="number" id="editFloor" name="editFloor" placeholder=" ">
+                                        <input type="number" id="editFloor" name="editFloor" placeholder=" " required>
                                         <i class="fas fa-layer-group input-icon"></i>
-                                        <label class="floating-label">Kat</label>
+                                        <label class="floating-label">Kat <span class="required">*</span></label>
                                         <div class="input-border"></div>
                                     </div>
                                 </div>
@@ -418,269 +440,10 @@
                         
                         <!-- Modern Kategori Butonları -->
                         <div class="modern-category-tabs">
-                            <button type="button" class="modern-category-tab active" data-category="soguk-icecek">
-                                <div class="tab-icon">
-                                    <i class="fas fa-glass-whiskey"></i>
-                                </div>
-                                <span class="tab-label">Soğuk İçecek</span>
-                                <div class="tab-indicator"></div>
-                            </button>
-                            <button type="button" class="modern-category-tab" data-category="sicak-icecek">
-                                <div class="tab-icon">
-                                    <i class="fas fa-coffee"></i>
-                                </div>
-                                <span class="tab-label">Sıcak İçecek</span>
-                                <div class="tab-indicator"></div>
-                            </button>
-                            <button type="button" class="modern-category-tab" data-category="yemek">
-                                <div class="tab-icon">
-                                    <i class="fas fa-utensils"></i>
-                                </div>
-                                <span class="tab-label">Yemek</span>
-                                <div class="tab-indicator"></div>
-                            </button>
-                            <button type="button" class="modern-category-tab" data-category="tatli">
-                                <div class="tab-icon">
-                                    <i class="fas fa-birthday-cake"></i>
-                                </div>
-                                <span class="tab-label">Tatlı</span>
-                                <div class="tab-indicator"></div>
-                            </button>
                         </div>
 
                         <!-- Modern Ürün Grid -->
                         <div class="modern-product-grid">
-                            <!-- Soğuk İçecek -->
-                            <div class="modern-product-group" data-category="soguk-icecek">
-                                <div class="modern-product-card" data-product="kola" data-price="15">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Kola</h4>
-                                            <p class="product-price">15₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-kola">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                                <div class="modern-product-card" data-product="ayran" data-price="8">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Ayran</h4>
-                                            <p class="product-price">8₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-ayran">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                                <div class="modern-product-card" data-product="su" data-price="5">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Su</h4>
-                                            <p class="product-price">5₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-su">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                                <div class="modern-product-card" data-product="meyve-suyu" data-price="12">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Meyve Suyu</h4>
-                                            <p class="product-price">12₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-meyve-suyu">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                            </div>
-
-                            <!-- Sıcak İçecek -->
-                            <div class="modern-product-group" data-category="sicak-icecek" style="display: none;">
-                                <div class="modern-product-card" data-product="cay" data-price="6">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Çay</h4>
-                                            <p class="product-price">6₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-cay">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                                <div class="modern-product-card" data-product="kahve" data-price="20">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Kahve</h4>
-                                            <p class="product-price">20₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-kahve">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                                <div class="modern-product-card" data-product="sicak-cikolata" data-price="18">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Sıcak Çikolata</h4>
-                                            <p class="product-price">18₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-sicak-cikolata">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                            </div>
-
-                            <!-- Yemek -->
-                            <div class="modern-product-group" data-category="yemek" style="display: none;">
-                                <div class="modern-product-card" data-product="pizza" data-price="45">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Pizza</h4>
-                                            <p class="product-price">45₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-pizza">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                                <div class="modern-product-card" data-product="burger" data-price="35">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Burger</h4>
-                                            <p class="product-price">35₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-burger">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                                <div class="modern-product-card" data-product="sandvic" data-price="25">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Sandviç</h4>
-                                            <p class="product-price">25₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-sandvic">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                            </div>
-
-                            <!-- Tatlı -->
-                            <div class="modern-product-group" data-category="tatli" style="display: none;">
-                                <div class="modern-product-card" data-product="pasta" data-price="30">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Pasta</h4>
-                                            <p class="product-price">30₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-pasta">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                                <div class="modern-product-card" data-product="dondurma" data-price="15">
-                                    <div class="product-card-content">
-                                        <div class="product-info">
-                                            <h4 class="product-name">Dondurma</h4>
-                                            <p class="product-price">15₺</p>
-                                        </div>
-                                        <div class="product-actions">
-                                            <button class="quantity-btn minus" type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <span class="product-quantity" id="count-dondurma">0</span>
-                                            <button class="quantity-btn plus" type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="product-ripple"></div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -979,7 +742,8 @@
     </div>
     
     <script src="./assets/js/cityManager.js"></script>
-    <script src="./assets/js/arayanDashboard.js"></script>
+<script src="./assets/js/arayanDashboard.js"></script>
+<script type="module" src="./js/arayanProducts.js"></script>
 
 </body>
 </html>

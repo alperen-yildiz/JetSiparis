@@ -322,6 +322,7 @@ class CityManager {
             city: this.selectedCity?.name || '',
             district: this.selectedDistrict?.name || '',
             neighborhood: document.getElementById('neighborhoodSelect')?.selectedOptions[0]?.textContent || '',
+            street: document.getElementById('street')?.value || '',
             buildingName: document.getElementById('buildingName')?.value || '',
             buildingNumber: document.getElementById('buildingNumber')?.value || '',
             apartment: document.getElementById('apartment')?.value || '',
@@ -335,6 +336,7 @@ class CityManager {
         if (formData.buildingNumber) addressParts.push(`No: ${formData.buildingNumber}`);
         if (formData.apartment) addressParts.push(`Daire: ${formData.apartment}`);
         if (formData.floor) addressParts.push(`Kat: ${formData.floor}`);
+        if (formData.street) addressParts.push(formData.street);
         if (formData.neighborhood) addressParts.push(formData.neighborhood);
         if (formData.district) addressParts.push(formData.district);
         if (formData.city) addressParts.push(formData.city);
@@ -343,6 +345,22 @@ class CityManager {
             formatted: addressParts.join(', '),
             details: formData
         };
+    }
+
+    // Düzenleme formu için tam adres oluştur
+    buildFullAddress(addressData) {
+        let addressParts = [];
+        
+        if (addressData.buildingName) addressParts.push(addressData.buildingName);
+        if (addressData.buildingNumber) addressParts.push(`No: ${addressData.buildingNumber}`);
+        if (addressData.apartment) addressParts.push(`Daire: ${addressData.apartment}`);
+        if (addressData.floor) addressParts.push(`Kat: ${addressData.floor}`);
+        if (addressData.street) addressParts.push(addressData.street);
+        if (addressData.neighborhood) addressParts.push(addressData.neighborhood);
+        if (addressData.district) addressParts.push(addressData.district);
+        if (this.selectedCity?.name) addressParts.push(this.selectedCity.name);
+
+        return addressParts.join(', ');
     }
 
     // Düzenleme formu için ilçe dropdown'ını doldur

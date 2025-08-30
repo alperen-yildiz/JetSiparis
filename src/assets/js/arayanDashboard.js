@@ -2,9 +2,15 @@
 class ArayanDashboard {
     constructor() {
         // Kurulum kontrolü - eğer kurulum tamamlanmamışsa onboarding'e yönlendir
+        const isDevEnv = (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
         if (!this.checkSetupComplete()) {
-            window.location.href = './onboarding/arayanOnboarding.html';
-            return;
+            // Geliştirme/önizleme ortamında yönlendirme yapmadan demo modda devam et
+            if (!isDevEnv) {
+                window.location.href = './onboarding/arayanOnboarding.html';
+                return;
+            } else {
+                console.warn('Kurulum tamamlanmadı - geliştirme ortamında demo modda devam ediliyor.');
+            }
         }
         
         this.currentCall = null;
@@ -444,8 +450,8 @@ class ArayanDashboard {
             return;
         }
         
-        if (!formData.get('district') || !formData.get('neighborhood') || !formData.get('buildingNumber')) {
-            this.showNotification('Hata', 'İlçe, mahalle ve bina no alanları zorunludur.', 'error');
+        if (!formData.get('district') || !formData.get('neighborhood') || !formData.get('street') || !formData.get('buildingNumber')) {
+            this.showNotification('Hata', 'İlçe, mahalle, sokak/cadde ve bina no alanları zorunludur.', 'error');
             return;
         }
         
@@ -496,10 +502,11 @@ class ArayanDashboard {
         // Adres bilgilerini al
         const district = formData.get('editDistrictSelect');
         const neighborhood = formData.get('editNeighborhoodSelect');
+        const street = formData.get('editStreet')?.trim();
         const buildingNumber = formData.get('editBuildingNumber')?.trim();
         
-        if (!district || !neighborhood || !buildingNumber) {
-            this.showNotification('Hata', 'İlçe, mahalle ve bina no alanları zorunludur.', 'error');
+        if (!district || !neighborhood || !street || !buildingNumber) {
+            this.showNotification('Hata', 'İlçe, mahalle, sokak/cadde ve bina no alanları zorunludur.', 'error');
             return;
         }
         
@@ -507,6 +514,7 @@ class ArayanDashboard {
         const fullAddress = cityManager.buildFullAddress({
             district: district,
             neighborhood: neighborhood,
+            street: street,
             buildingName: formData.get('editBuildingName')?.trim() || '',
             buildingNumber: buildingNumber,
             apartment: formData.get('editApartment')?.trim() || '',
@@ -768,7 +776,7 @@ class ArayanDashboard {
                 cartItems.innerHTML = this.cart.map(item => `
                     <div class="cart-item">
                         <div class="cart-item-info">
-                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-name">${(window.productNameMap && window.productNameMap[item.name]) || item.name}</div>
                             <div class="cart-item-price">${item.price}₺ x ${item.quantity}</div>
                         </div>
                         <div class="cart-item-quantity">
@@ -791,7 +799,7 @@ class ArayanDashboard {
                     return `
                     <div class="modern-cart-item">
                         <div class="modern-cart-item-info">
-                            <div class="modern-cart-item-name">${item.name}</div>
+                            <div class="modern-cart-item-name">${(window.productNameMap && window.productNameMap[item.name]) || item.name}</div>
                             <div class="modern-cart-item-details">
                                 <span class="modern-cart-item-unit-price">Birim: ${item.price}₺</span>
                                 <span class="modern-cart-item-total-price">Toplam: ${itemTotal}₺</span>
