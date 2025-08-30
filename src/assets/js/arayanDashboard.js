@@ -1,6 +1,8 @@
 // JetArayan Dashboard JavaScript
 // Firebase müşteri yönetimi için customerManager'ı import et
 import customerManager from '../../js/customerManager.js';
+// COM Port yönetimi için comPortManager'ı import et
+import comPortManager from '../../js/comPortManager.js';
 
 class ArayanDashboard {
     constructor() {
@@ -18,11 +20,12 @@ class ArayanDashboard {
         
         this.currentCall = null;
         this.callHistory = [];
-        this.customers = JSON.parse(localStorage.getItem('customers')) || [];
+        // customers artık Firebase'den gelecek, localStorage kullanımı kaldırıldı
         this.cart = [];
         this.currentCustomer = null;
         this.isOnline = false;
         this.callDurationInterval = null;
+        this.comPortManager = comPortManager;
         
         this.init();
     }
@@ -34,6 +37,7 @@ class ArayanDashboard {
 
         this.updateConnectionStatus();
         this.initializeCustomerManagement();
+        this.setupComPortManager();
     }
 
     // Event Listeners
@@ -92,6 +96,33 @@ class ArayanDashboard {
         
         document.getElementById('completeOrderBtn')?.addEventListener('click', () => {
             this.completeOrder();
+        });
+
+        // COM Port management
+        document.getElementById('refreshPortsBtn')?.addEventListener('click', () => {
+            this.comPortManager.refreshPorts();
+        });
+        
+        document.getElementById('connectBtn')?.addEventListener('click', () => {
+            this.connectComPort();
+        });
+        
+        document.getElementById('disconnectBtn')?.addEventListener('click', () => {
+            this.disconnectComPort();
+        });
+        
+        document.getElementById('startListeningBtn')?.addEventListener('click', () => {
+            this.startCallerIdListening();
+        });
+        
+        document.getElementById('stopListeningBtn')?.addEventListener('click', () => {
+            this.stopCallerIdListening();
+        });
+        
+        // COM Port seçimi değiştiğinde
+        document.getElementById('comPortSelect')?.addEventListener('change', (e) => {
+            this.comPortManager.selectedPort = e.target.value;
+            this.comPortManager.updateUI();
         });
 
         // Modern Cart actions
@@ -253,46 +284,12 @@ class ArayanDashboard {
 
     // Customer Management
     initializeCustomerManagement() {
-        // Demo müşteri verileri
-        if (this.customers.length === 0) {
-            this.customers = [
-                {
-                    id: 1,
-                    phone: '+90 532 123 45 67',
-                    firstName: 'Ahmet',
-                    lastName: 'Yılmaz',
-                    address: 'Kadıköy, İstanbul',
-                    note: 'VIP müşteri',
-                    regDate: '2024-01-15',
-                    callCount: 5
-                },
-                {
-                    id: 2,
-                    phone: '+90 505 987 65 43',
-                    firstName: 'Ayşe',
-                    lastName: 'Demir',
-                    address: 'Çankaya, Ankara',
-                    note: '',
-                    regDate: '2024-02-20',
-                    callCount: 2
-                }
-            ];
-            // Firebase entegrasyonu ile artık gerekli değil
-        }
+        // Firebase entegrasyonu ile müşteri verileri artık Firebase'den gelecek
+        // Demo veriler kaldırıldı - gerçek caller ID entegrasyonu için hazır
     }
 
-    // Call Management
-    simulateIncomingCall(callerData = null) {
-        const demoNumbers = [
-            '+90 532 123 45 67',
-            '+90 505 987 65 43',
-            '+90 541 555 12 34',
-            '+90 555 999 88 77'
-        ];
-        
-        const randomNumber = demoNumbers[Math.floor(Math.random() * demoNumbers.length)];
-        this.receiveCall(randomNumber);
-    }
+    // Call Management - Gerçek caller ID entegrasyonu için hazırlandı
+    // simulateIncomingCall fonksiyonu kaldırıldı - artık gerçek aramalar gelecek
 
     receiveCall(number) {
         this.currentCall = {
@@ -345,6 +342,7 @@ class ArayanDashboard {
         const editForm = document.getElementById('editCustomerForm');
         const orderSection = document.getElementById('orderSection');
         const cartSection = document.getElementById('cartSection');
+        const customerInfoSection = document.getElementById('customerInfoSection');
         
         // Müşteri bilgilerini doldur
         document.getElementById('customerFullName').textContent = `${customer.firstName} ${customer.lastName}`;
@@ -355,6 +353,7 @@ class ArayanDashboard {
         document.getElementById('customerCallCount').textContent = customer.callCount;
         
         // Görünürlük ayarları
+        customerInfoSection.style.display = 'block';
         existingCard.style.display = 'block';
         newForm.style.display = 'none';
         editForm.style.display = 'none';
@@ -368,8 +367,10 @@ class ArayanDashboard {
         const editForm = document.getElementById('editCustomerForm');
         const orderSection = document.getElementById('orderSection');
         const cartSection = document.getElementById('cartSection');
+        const customerInfoSection = document.getElementById('customerInfoSection');
         
         // Görünürlük ayarları
+        customerInfoSection.style.display = 'block';
         existingCard.style.display = 'none';
         newForm.style.display = 'block';
         editForm.style.display = 'none';
@@ -383,7 +384,7 @@ class ArayanDashboard {
         if (cityManager) {
             cityManager.updateCityDisplay(cityManager.getSelectedCity());
         }
-    }
+     }
 
     editCustomer() {
         if (!this.currentCustomer) return;
@@ -1001,10 +1002,12 @@ class ArayanDashboard {
             const element = document.getElementById(formId);
             if (element) element.style.display = 'none';
         });
+        const customerInfoSection = document.getElementById('customerInfoSection');
+        if (customerInfoSection) customerInfoSection.style.display = 'none';
         
         // Sepeti temizle
         this.clearCart();
-    }
+     }
 
     startCallDuration() {
         let seconds = 0;
@@ -1107,7 +1110,7 @@ class ArayanDashboard {
     updateStats() {
         const totalCalls = this.callHistory.length;
         
-        document.getElementById('totalCalls').textContent = totalCalls;
+        document.getElementById('totalCalls').textContent = 'Yakında v1.2';
     }
 
     // Connection Status
@@ -1137,7 +1140,7 @@ class ArayanDashboard {
         if (this.currentCall) {
             this.showNotification(`${this.currentCall.name} kişi listesine eklendi`, 'success');
         } else {
-            this.showNotification('Eklenecek kişi bulunamadı', 'warning');
+            this.showNotification('Yakında sizlerle v1.2', 'info');
         }
     }
 
@@ -1146,6 +1149,10 @@ class ArayanDashboard {
     reportSpam() {
         // Ürün ekleme sayfasına yönlendir
         window.location.href = './screen/addProduct.html';
+    }
+
+    showCallHistory() {
+        this.showNotification('Yakında sizlerle v1.2', 'info');
     }
 
 
@@ -1301,55 +1308,268 @@ class ArayanDashboard {
         }
     }
 
-    // Demo Functions
-    startDemo() {
-        // Simulate some demo data
-        this.addDemoData();
+    // Demo fonksiyonları kaldırıldı - gerçek caller ID entegrasyonu için hazır
+
+    // COM Port Management Methods
+    setupComPortManager() {
+        // COM Port Manager event handler'larını ayarla
+        this.comPortManager.setCallerIdHandler((callerData) => {
+            this.handleIncomingCall(callerData);
+        });
         
-        // Simulate an incoming call after 2 seconds
-        setTimeout(() => {
-            this.simulateIncomingCall({
-                name: 'Ahmet Yılmaz',
-                number: '+90 532 123 45 67',
-                location: 'İstanbul, Türkiye',
-                avatar: null,
-                isSpam: false
-            });
-        }, 2000);
+        this.comPortManager.setErrorHandler((error) => {
+            this.showNotification(`COM Port Hatası: ${error}`, 'error');
+            console.error('COM Port Error:', error);
+        });
+        
+        this.comPortManager.setStatusChangeHandler((status, data) => {
+            this.handleComPortStatusChange(status, data);
+        });
     }
 
-    addDemoData() {
-        // Add some demo call history
-        const demoHistory = [
-            {
-                id: Date.now() - 1000,
-                caller: { name: 'Mehmet Demir', number: '+90 533 987 65 43' },
-                status: 'answered',
-                timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-                duration: '03:45'
-            },
-            {
-                id: Date.now() - 2000,
-                caller: { name: 'Bilinmeyen', number: '+90 212 555 12 34' },
-                status: 'declined',
-                timestamp: new Date(Date.now() - 7200000), // 2 hours ago
-                duration: '00:00'
+    async connectComPort() {
+        try {
+            const portSelect = document.getElementById('comPortSelect');
+            const selectedPort = portSelect?.value;
+            
+            if (!selectedPort) {
+                this.showNotification('Lütfen bir COM port seçin', 'warning');
+                return;
             }
-        ];
+            
+            this.showNotification('COM porta bağlanıyor...', 'info');
+            await this.comPortManager.connectPort(selectedPort);
+            this.showNotification(`${selectedPort} portuna başarıyla bağlandı`, 'success');
+            
+        } catch (error) {
+            this.showNotification(`Bağlantı hatası: ${error.message}`, 'error');
+        }
+    }
+
+    async disconnectComPort() {
+        try {
+            this.showNotification('COM port bağlantısı kesiliyor...', 'info');
+            await this.comPortManager.disconnectPort();
+            this.showNotification('COM port bağlantısı kesildi', 'success');
+            
+        } catch (error) {
+            this.showNotification(`Bağlantı kesme hatası: ${error.message}`, 'error');
+        }
+    }
+
+    async startCallerIdListening() {
+        try {
+            this.showNotification('Caller ID dinleme başlatılıyor...', 'info');
+            await this.comPortManager.startListening();
+            this.showNotification('Caller ID dinleme başlatıldı', 'success');
+            
+            // Bağlantı durumunu güncelle
+            this.isOnline = true;
+            this.updateConnectionStatus();
+            
+        } catch (error) {
+            this.showNotification(`Dinleme başlatma hatası: ${error.message}`, 'error');
+        }
+    }
+
+    async stopCallerIdListening() {
+        try {
+            this.showNotification('Caller ID dinleme durduruluyor...', 'info');
+            await this.comPortManager.stopListening();
+            this.showNotification('Caller ID dinleme durduruldu', 'success');
+            
+            // Bağlantı durumunu güncelle
+            this.isOnline = false;
+            this.updateConnectionStatus();
+            
+        } catch (error) {
+            this.showNotification(`Dinleme durdurma hatası: ${error.message}`, 'error');
+        }
+    }
+
+    handleComPortStatusChange(status, data) {
+        console.log('COM Port Status Change:', status, data);
         
-        // Add some demo blocked numbers
-        const demoBlocked = [
-            {
-                id: Date.now() - 3000,
-                number: '+90 850 123 45 67',
-                reason: 'Spam/Reklam',
-                timestamp: new Date(Date.now() - 86400000) // 1 day ago
+        switch (status) {
+            case 'connected':
+                this.showNotification('COM port bağlantısı kuruldu', 'success');
+                break;
+            case 'disconnected':
+                this.showNotification('COM port bağlantısı kesildi', 'warning');
+                this.isOnline = false;
+                this.updateConnectionStatus();
+                break;
+            case 'listening':
+                this.showNotification('Caller ID dinleme aktif', 'success');
+                this.isOnline = true;
+                this.updateConnectionStatus();
+                break;
+            case 'stopped':
+                this.showNotification('Caller ID dinleme durduruldu', 'warning');
+                this.isOnline = false;
+                this.updateConnectionStatus();
+                break;
+        }
+    }
+
+    async handleIncomingCall(callerData) {
+        console.log('Gelen arama:', callerData);
+        
+        try {
+            // Gelen numarayı temizle ve formatla
+            const phoneNumber = this.cleanPhoneNumber(callerData.phone_number);
+            
+            if (!phoneNumber) {
+                this.showNotification('Geçersiz telefon numarası alındı', 'warning');
+                return;
             }
-        ];
+            
+            this.showNotification(`Gelen arama: ${phoneNumber}`, 'info');
+            
+            // Arama bilgilerini ayarla
+            this.currentCall = {
+                number: phoneNumber,
+                startTime: new Date(),
+                status: 'incoming'
+            };
+            
+            // Gelen aramayı göster
+            this.showIncomingCall(phoneNumber);
+            
+            // Müşteriyi Firebase'den sorgula
+            const result = await customerManager.queryCustomerByPhone(phoneNumber);
+            
+            if (result.found) {
+                // Mevcut müşteri bulundu
+                this.showExistingCustomer(result.customer);
+                this.currentCustomer = result.customer;
+                this.showNotification(`Mevcut müşteri: ${result.customer.firstName} ${result.customer.lastName}`, 'success');
+                
+                // Önceki siparişleri yükle
+                if (result.orderCollection && result.orderCollection.orders && result.orderCollection.orders.length > 0) {
+                    const lastOrder = result.orderCollection.orders[0];
+                    if (lastOrder.items) {
+                        this.loadPreviousOrder(lastOrder.items);
+                    }
+                }
+            } else {
+                // Yeni müşteri
+                this.showNewCustomerForm(phoneNumber);
+                this.newCustomerPhone = phoneNumber;
+                this.showNotification('Yeni müşteri - kayıt formu açıldı', 'info');
+            }
+            
+            // Arama geçmişine ekle
+            this.addToCallHistory({
+                phone: phoneNumber,
+                time: new Date().toLocaleString('tr-TR'),
+                type: 'incoming',
+                customer: result.found ? `${result.customer.firstName} ${result.customer.lastName}` : 'Bilinmeyen'
+            });
+            
+        } catch (error) {
+            console.error('Gelen arama işleme hatası:', error);
+            this.showNotification(`Arama işleme hatası: ${error.message}`, 'error');
+        }
+    }
+
+    cleanPhoneNumber(phoneNumber) {
+        if (!phoneNumber) return null;
         
-        this.callHistory = [...demoHistory, ...this.callHistory];
-        this.blockedNumbers = [...demoBlocked, ...this.blockedNumbers];
-        this.saveData();
+        // Sadece rakamları al
+        let cleaned = phoneNumber.replace(/\D/g, '');
+        
+        // Türkiye formatına çevir
+        if (cleaned.startsWith('90')) {
+            cleaned = cleaned.substring(2);
+        } else if (cleaned.startsWith('0')) {
+            cleaned = cleaned.substring(1);
+        }
+        
+        // 10 haneli olup olmadığını kontrol et
+        if (cleaned.length === 10) {
+            return cleaned;
+        }
+        
+        return null;
+    }
+
+    showExistingCustomer(customer) {
+        // Mevcut müşteri bilgilerini göster
+        this.currentCustomer = customer;
+        
+        // Müşteri bilgilerini forma doldur
+        const customerNameElement = document.getElementById('existingCustomerName');
+        const customerPhoneElement = document.getElementById('existingCustomerPhone');
+        const customerAddressElement = document.getElementById('existingCustomerAddress');
+        const customerNotesElement = document.getElementById('existingCustomerNotes');
+        
+        if (customerNameElement) {
+            customerNameElement.textContent = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
+        }
+        if (customerPhoneElement) {
+            customerPhoneElement.textContent = customerManager.formatPhoneNumber(customer.phone);
+        }
+        if (customerAddressElement) {
+            customerAddressElement.textContent = customer.address || 'Adres bilgisi yok';
+        }
+        if (customerNotesElement) {
+            customerNotesElement.textContent = customer.note || 'Not yok';
+        }
+        
+        // Müşteri kartını göster
+        const existingCustomerCard = document.getElementById('existingCustomerCard');
+        const newCustomerForm = document.getElementById('newCustomerForm');
+        
+        if (existingCustomerCard) existingCustomerCard.style.display = 'block';
+        if (newCustomerForm) newCustomerForm.style.display = 'none';
+        
+        // Sepeti temizle
+        this.clearCart();
+    }
+
+    showNewCustomerForm(phoneNumber) {
+        // Yeni müşteri formu göster
+        this.currentCustomer = null;
+        this.newCustomerPhone = phoneNumber;
+        
+        // Formu temizle ve telefon numarasını doldur
+        const newCustomerPhoneElement = document.getElementById('newCustomerPhone');
+        if (newCustomerPhoneElement) {
+            newCustomerPhoneElement.value = phoneNumber;
+        }
+        
+        // Form alanlarını temizle
+        const formFields = ['firstName', 'lastName', 'note'];
+        formFields.forEach(fieldId => {
+            const element = document.getElementById(fieldId);
+            if (element) element.value = '';
+        });
+        
+        // Yeni müşteri formunu göster
+        const existingCustomerCard = document.getElementById('existingCustomerCard');
+        const newCustomerForm = document.getElementById('newCustomerForm');
+        
+        if (existingCustomerCard) existingCustomerCard.style.display = 'none';
+        if (newCustomerForm) newCustomerForm.style.display = 'block';
+        
+        // Sepeti temizle
+        this.clearCart();
+    }
+
+    loadPreviousOrder(items) {
+        // Önceki siparişi sepete yükle
+        if (!items || !Array.isArray(items)) return;
+        
+        items.forEach(item => {
+            if (item.productName && item.quantity && item.unitPrice) {
+                for (let i = 0; i < item.quantity; i++) {
+                    this.addToCart(item.productName, item.unitPrice);
+                }
+            }
+        });
+        
+        this.showNotification('Önceki sipariş sepete yüklendi', 'info');
     }
 }
 
@@ -1423,10 +1643,10 @@ window.customerManager = customerManager;
 document.addEventListener('DOMContentLoaded', () => {
     window.dashboard = new ArayanDashboard();
     
-    // Start demo mode (remove this in production)
-    dashboard.startDemo();
+    // Gerçek caller ID entegrasyonu için hazır
+    // Demo mod kaldırıldı
     
-    // Add click handler for connection status toggle (for demo)
+    // Add click handler for connection status toggle
     document.getElementById('callStatus').addEventListener('click', () => {
         dashboard.toggleConnectionStatus();
     });

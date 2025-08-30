@@ -1,206 +1,321 @@
-/**
- * COM Port Yönetimi
- * Tauri backend ile COM portlarını listeler ve yönetir
- */
+// JetArayan - COM Port Yönetimi
+// Bu modül Tauri backend ile COM port iletişimini yönetir
 
 class ComPortManager {
     constructor() {
-        this.comPortSelect = null;
-        this.refreshPortsBtn = null;
+        this.isConnected = false;
+        this.isListening = false;
         this.selectedPort = null;
+        this.onCallerIdReceived = null;
+        this.onError = null;
+        this.onStatusChange = null;
+        
         this.init();
     }
 
-    /**
-     * COM Port Manager'ı başlatır
-     */
-    init() {
-        // DOM elementlerini al
-        this.comPortSelect = document.getElementById('comPortSelect');
-        this.refreshPortsBtn = document.getElementById('refreshPortsBtn');
-
-        if (!this.comPortSelect || !this.refreshPortsBtn) {
-            console.error('COM Port elementleri bulunamadı!');
-            return;
+    async init() {
+        // Tauri event listener'larını ayarla
+        if (window.__TAURI__) {
+            const { listen } = window.__TAURI__.event;
+            
+            // Caller ID verisi alındığında
+            await listen('caller-id-received', (event) => {
+                console.log('Caller ID alındı:', event.payload);
+                if (this.onCallerIdReceived) {
+                    this.onCallerIdReceived(event.payload);
+                }
+            });
+            
+            // Hata durumunda
+            await listen('caller-id-error', (event) => {
+                console.error('Caller ID hatası:', event.payload);
+                if (this.onError) {
+                    this.onError(event.payload);
+                }
+            });
         }
-
-        // Event listener'ları ekle
-        this.setupEventListeners();
         
         // Sayfa yüklendiğinde portları listele
-        this.loadComPorts();
+        await this.refreshPorts();
+        await this.updateStatus();
     }
 
-    /**
-     * Event listener'ları ayarlar
-     */
-    setupEventListeners() {
-        // Port seçimi değiştiğinde
-        this.comPortSelect.addEventListener('change', (e) => {
-            this.selectedPort = e.target.value;
-            console.log('Seçilen COM Port:', this.selectedPort);
-            
-            // Port seçildiğinde callback çağır
-            this.onPortSelected(this.selectedPort);
-        });
-
-        // Portları yenile butonu
-        this.refreshPortsBtn.addEventListener('click', () => {
-            this.refreshPorts();
-        });
-    }
-
-    /**
-     * COM portlarını Tauri backend'den alır ve listeler
-     */
-    async loadComPorts() {
+    // Mevcut COM portlarını listele
+    async refreshPorts() {
         try {
-            // Yükleme durumunu göster
-            this.setLoadingState(true);
-            
-            // Tauri command'ını çağır
-            const ports = await window.__TAURI__.core.invoke('get_com_ports');
-            
-            // Dropdown'ı temizle
-            this.clearPortOptions();
-            
-            // Portları ekle
-            if (ports && ports.length > 0) {
-                ports.forEach(port => {
-                    this.addPortOption(port);
-                });
-                console.log('COM Portları yüklendi:', ports);
-            } else {
-                this.addPortOption('', 'Hiç COM port bulunamadı', true);
-                console.log('Hiç COM port bulunamadı');
+            if (!window.__TAURI__) {
+                throw new Error('Tauri API bulunamadı');
             }
             
+            const { invoke } = window.__TAURI__.core;
+            const ports = await invoke('get_com_ports');
+            
+            const portSelect = document.getElementById('comPortSelect');
+            if (portSelect) {
+                portSelect.innerHTML = '<option value="">Port Seçin...</option>';
+                
+                ports.forEach(port => {
+                    const option = document.createElement('option');
+                    option.value = port;
+                    option.textContent = port;
+                    portSelect.appendChild(option);
+                });
+                
+                // Eğer daha önce seçilmiş port varsa, onu seç
+                if (this.selectedPort && ports.includes(this.selectedPort)) {
+                    portSelect.value = this.selectedPort;
+                }
+            }
+            
+            return ports;
         } catch (error) {
-            console.error('COM portları alınırken hata:', error);
-            this.clearPortOptions();
-            this.addPortOption('', 'Hata: Portlar alınamadı', true);
-        } finally {
-            this.setLoadingState(false);
+            console.error('Port listesi alınamadı:', error);
+            if (this.onError) {
+                this.onError(`Port listesi alınamadı: ${error.message}`);
+            }
+            return [];
         }
     }
 
-    /**
-     * Portları yeniler
-     */
-    async refreshPorts() {
-        console.log('COM Portları yenileniyor...');
-        
-        // Loading state'i aktif et
-        this.refreshPortsBtn.classList.add('loading');
-        this.refreshPortsBtn.disabled = true;
-        
+    // COM porta bağlan
+    async connectPort(portName) {
         try {
-            await this.loadComPorts();
-        } finally {
-            // Loading state'i kaldır
-            setTimeout(() => {
-                this.refreshPortsBtn.classList.remove('loading');
-                this.refreshPortsBtn.disabled = false;
-            }, 500);
+            if (!window.__TAURI__) {
+                throw new Error('Tauri API bulunamadı');
+            }
+            
+            if (!portName) {
+                throw new Error('Port seçilmedi');
+            }
+            
+            const { invoke } = window.__TAURI__.core;
+            const result = await invoke('connect_com_port', { portName });
+            
+            this.selectedPort = portName;
+            this.isConnected = true;
+            
+            console.log('Port bağlantısı başarılı:', result);
+            await this.updateStatus();
+            
+            if (this.onStatusChange) {
+                this.onStatusChange('connected', result);
+            }
+            
+            return result;
+        } catch (error) {
+            console.error('Port bağlantısı başarısız:', error);
+            this.isConnected = false;
+            await this.updateStatus();
+            
+            if (this.onError) {
+                this.onError(`Port bağlantısı başarısız: ${error.message}`);
+            }
+            throw error;
         }
     }
 
-    /**
-     * Dropdown'ı temizler
-     */
-    clearPortOptions() {
-        this.comPortSelect.innerHTML = '<option value="">Port Seçin...</option>';
-    }
-
-    /**
-     * Dropdown'a port seçeneği ekler
-     */
-    addPortOption(value, text = null, disabled = false) {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = text || value;
-        option.disabled = disabled;
-        this.comPortSelect.appendChild(option);
-    }
-
-    /**
-     * Yükleme durumunu ayarlar
-     */
-    setLoadingState(loading) {
-        if (loading) {
-            this.comPortSelect.disabled = true;
-            this.refreshPortsBtn.disabled = true;
-            this.clearPortOptions();
-            this.addPortOption('', 'Yükleniyor...', true);
-        } else {
-            this.comPortSelect.disabled = false;
-            this.refreshPortsBtn.disabled = false;
+    // COM port bağlantısını kes
+    async disconnectPort() {
+        try {
+            if (!window.__TAURI__) {
+                throw new Error('Tauri API bulunamadı');
+            }
+            
+            const { invoke } = window.__TAURI__.core;
+            const result = await invoke('disconnect_com_port');
+            
+            this.isConnected = false;
+            this.isListening = false;
+            
+            console.log('Port bağlantısı kesildi:', result);
+            await this.updateStatus();
+            
+            if (this.onStatusChange) {
+                this.onStatusChange('disconnected', result);
+            }
+            
+            return result;
+        } catch (error) {
+            console.error('Port bağlantısı kesilemedi:', error);
+            if (this.onError) {
+                this.onError(`Port bağlantısı kesilemedi: ${error.message}`);
+            }
+            throw error;
         }
     }
 
-    /**
-     * Port seçildiğinde çağrılır
-     * @param {string} port - Seçilen port adı
-     */
-    onPortSelected(port) {
-        if (port) {
-            console.log(`COM Port seçildi: ${port}`);
-            // Burada seçilen port ile ilgili işlemler yapılabilir
-            // Örneğin: port bağlantısı, durum güncelleme vb.
+    // Caller ID dinlemeyi başlat
+    async startListening() {
+        try {
+            if (!window.__TAURI__) {
+                throw new Error('Tauri API bulunamadı');
+            }
+            
+            if (!this.isConnected) {
+                throw new Error('Önce COM porta bağlanmalısınız');
+            }
+            
+            const { invoke } = window.__TAURI__.core;
+            const result = await invoke('start_caller_id_listening');
+            
+            this.isListening = true;
+            
+            console.log('Caller ID dinleme başlatıldı:', result);
+            await this.updateStatus();
+            
+            if (this.onStatusChange) {
+                this.onStatusChange('listening', result);
+            }
+            
+            return result;
+        } catch (error) {
+            console.error('Dinleme başlatılamadı:', error);
+            this.isListening = false;
+            await this.updateStatus();
+            
+            if (this.onError) {
+                this.onError(`Dinleme başlatılamadı: ${error.message}`);
+            }
+            throw error;
         }
     }
 
-    /**
-     * Seçili portu döndürür
-     */
+    // Caller ID dinlemeyi durdur
+    async stopListening() {
+        try {
+            if (!window.__TAURI__) {
+                throw new Error('Tauri API bulunamadı');
+            }
+            
+            const { invoke } = window.__TAURI__.core;
+            const result = await invoke('stop_caller_id_listening');
+            
+            this.isListening = false;
+            
+            console.log('Caller ID dinleme durduruldu:', result);
+            await this.updateStatus();
+            
+            if (this.onStatusChange) {
+                this.onStatusChange('stopped', result);
+            }
+            
+            return result;
+        } catch (error) {
+            console.error('Dinleme durdurulamadı:', error);
+            if (this.onError) {
+                this.onError(`Dinleme durdurulamadı: ${error.message}`);
+            }
+            throw error;
+        }
+    }
+
+    // Durumu güncelle
+    async updateStatus() {
+        try {
+            if (!window.__TAURI__) {
+                return;
+            }
+            
+            const { invoke } = window.__TAURI__.core;
+            
+            // Backend'den gerçek durumu al
+            const connectionStatus = await invoke('get_connection_status');
+            const listeningStatus = await invoke('get_listening_status');
+            
+            this.isConnected = connectionStatus;
+            this.isListening = listeningStatus;
+            
+            // UI'ı güncelle
+            this.updateUI();
+            
+        } catch (error) {
+            console.error('Durum güncellenemedi:', error);
+        }
+    }
+
+    // UI elementlerini güncelle
+    updateUI() {
+        // DOM elementlerini güvenli şekilde al
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const startListeningBtn = document.getElementById('startListeningBtn');
+        const stopListeningBtn = document.getElementById('stopListeningBtn');
+        const comPortSelect = document.getElementById('comPortSelect');
+        const connectionStatus = document.querySelector('.connection-status');
+        
+        // Eğer gerekli elementler bulunamazsa (farklı sayfa), sessizce çık
+        if (!connectBtn && !disconnectBtn && !startListeningBtn && !stopListeningBtn) {
+            return;
+        }
+        
+        // Port seçimi
+        if (comPortSelect) {
+            comPortSelect.disabled = this.isConnected;
+        }
+        
+        // Bağlantı butonları
+        if (connectBtn) {
+            connectBtn.disabled = this.isConnected || !comPortSelect?.value;
+        }
+        
+        if (disconnectBtn) {
+            disconnectBtn.disabled = !this.isConnected;
+        }
+        
+        // Dinleme butonları
+        if (startListeningBtn) {
+            startListeningBtn.disabled = !this.isConnected || this.isListening;
+        }
+        
+        if (stopListeningBtn) {
+            stopListeningBtn.disabled = !this.isListening;
+        }
+        
+        // Bağlantı durumu - null kontrolü ile güvenli erişim
+        if (connectionStatus) {
+            if (this.isListening) {
+                connectionStatus.className = 'connection-status listening';
+                connectionStatus.textContent = 'Dinliyor';
+            } else if (this.isConnected) {
+                connectionStatus.className = 'connection-status connected';
+                connectionStatus.textContent = 'Bağlı';
+            } else {
+                connectionStatus.className = 'connection-status disconnected';
+                connectionStatus.textContent = 'Bağlantı Yok';
+            }
+        }
+    }
+
+    // Event handler'ları ayarla
+    setCallerIdHandler(handler) {
+        this.onCallerIdReceived = handler;
+    }
+
+    setErrorHandler(handler) {
+        this.onError = handler;
+    }
+
+    setStatusChangeHandler(handler) {
+        this.onStatusChange = handler;
+    }
+
+    // Getter'lar
+    getConnectionStatus() {
+        return this.isConnected;
+    }
+
+    getListeningStatus() {
+        return this.isListening;
+    }
+
     getSelectedPort() {
         return this.selectedPort;
     }
-
-    /**
-     * Programatik olarak port seçer
-     */
-    selectPort(portName) {
-        if (this.comPortSelect) {
-            this.comPortSelect.value = portName;
-            this.selectedPort = portName;
-            this.onPortSelected(portName);
-        }
-    }
-
-    /**
-     * Port bağlantı durumunu günceller
-     */
-    setConnectionStatus(isConnected) {
-        if (this.comPortSection) {
-            if (isConnected) {
-                this.comPortSection.classList.add('connected');
-            } else {
-                this.comPortSection.classList.remove('connected');
-            }
-        }
-    }
-
-    /**
-     * Port seçim arayüzünü aktif/pasif yapar
-     */
-    setEnabled(enabled) {
-        if (this.comPortSelect) {
-            this.comPortSelect.disabled = !enabled;
-        }
-        if (this.refreshPortsBtn) {
-            this.refreshPortsBtn.disabled = !enabled;
-        }
-        if (this.comPortSection) {
-            this.comPortSection.style.opacity = enabled ? '1' : '0.6';
-        }
-    }
 }
 
-// Global değişken olarak export et
-window.ComPortManager = ComPortManager;
+// Global instance oluştur
+const comPortManager = new ComPortManager();
 
-// Sayfa yüklendiğinde otomatik başlat
-document.addEventListener('DOMContentLoaded', () => {
-    window.comPortManager = new ComPortManager();
-});
+// Export et
+export default comPortManager;
+export { ComPortManager };

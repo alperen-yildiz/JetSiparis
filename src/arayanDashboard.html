@@ -29,6 +29,21 @@
                         <button id="refreshPortsBtn" class="refresh-ports-btn" title="Portları Yenile">
                             <i class="fas fa-sync-alt"></i>
                         </button>
+                        <div class="com-port-controls">
+                            <button id="connectBtn" class="com-port-btn connect-btn" title="Bağlan">
+                                <i class="fas fa-plug"></i>
+                            </button>
+                            <button id="disconnectBtn" class="com-port-btn disconnect-btn" title="Bağlantıyı Kes">
+                                <i class="fas fa-unlink"></i>
+                            </button>
+                            <button id="startListeningBtn" class="com-port-btn listen-btn" title="Dinlemeyi Başlat">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button id="stopListeningBtn" class="com-port-btn stop-btn" title="Dinlemeyi Durdur">
+                                <i class="fas fa-stop"></i>
+                            </button>
+                        </div>
+                        <div class="connection-status disconnected">Bağlantı Yok</div>
                     </div>
                     <div class="call-status" id="callStatus">
                         <span class="status-indicator offline" id="statusIndicator"></span>
@@ -58,7 +73,8 @@
                 </div>
 
                 <!-- Müşteri Bilgileri Bölümü -->
-                <div class="customer-info-section" id="customerInfoSection">
+
+                <div class="customer-info-section" id="customerInfoSection" style="display: none;">
                     <!-- Mevcut Müşteri Bilgileri -->
                     <div class="modern-customer-card" id="existingCustomerCard" style="display: none;">
                         <div class="modern-customer-container">
@@ -137,7 +153,7 @@
                                         </div>
                                         <div class="detail-content">
                                             <label>Toplam Arama</label>
-                                            <span id="customerCallCount" class="call-count-badge">-</span>
+                                            <span id="customerCallCount" class="call-count-badge">Yakında</span>
                                         </div>
                                     </div>
                                 </div>
@@ -538,7 +554,7 @@
                             <i class="fas fa-phone"></i>
                         </div>
                         <div class="stat-content">
-                            <h3 id="totalCalls">0</h3>
+                            <h3 id="totalCalls">Yakında v1.2</h3>
                             <p>Toplam Arama</p>
                         </div>
                     </div>
