@@ -79,6 +79,79 @@ body {
     gap: 16px;
 }
 
+/* COM Port Section Styles */
+.com-port-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.com-port-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+.com-port-label i {
+    color: var(--main-color);
+}
+
+.com-port-select {
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    font-size: 13px;
+    color: #374151;
+    min-width: 120px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.com-port-select:focus {
+    outline: none;
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.com-port-select:hover {
+    border-color: #9ca3af;
+}
+
+.refresh-ports-btn {
+    padding: 6px 8px;
+    background: var(--main-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.refresh-ports-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.refresh-ports-btn:active {
+    transform: translateY(0);
+}
+
+.refresh-ports-btn i {
+    font-size: 12px;
+}
+
 .call-status {
     display: flex;
     align-items: center;
@@ -2623,57 +2696,10 @@ body {
     text-align: right;
 }
 
-/* Blocked List */
-.blocked-list {
-    background: white;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    overflow: hidden;
-}
 
-.blocked-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 24px;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.blocked-item:last-child {
-    border-bottom: none;
-}
-
-.blocked-info h4 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 4px;
-}
-
-.blocked-info p {
-    font-size: 14px;
-    color: #64748b;
-}
-
-.unblock-btn {
-    padding: 8px 16px;
-    background: var(--danger-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.unblock-btn:hover {
-    background: #dc2626;
-    transform: translateY(-1px);
-}
 
 /* Buttons */
-.refresh-btn, .view-all-btn, .manage-blocked-btn {
+.refresh-btn, .view-all-btn {
     padding: 8px 16px;
     border: 1px solid #e2e8f0;
     background: white;
@@ -2688,7 +2714,7 @@ body {
     gap: 8px;
 }
 
-.refresh-btn:hover, .view-all-btn:hover, .manage-blocked-btn:hover {
+.refresh-btn:hover, .view-all-btn:hover {
     border-color: var(--main-color);
     color: var(--main-color);
     transform: translateY(-1px);

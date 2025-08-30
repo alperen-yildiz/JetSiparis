@@ -18,7 +18,6 @@ class ArayanDashboard {
         
         this.currentCall = null;
         this.callHistory = [];
-        this.blockedNumbers = [];
         this.customers = JSON.parse(localStorage.getItem('customers')) || [];
         this.cart = [];
         this.currentCustomer = null;
@@ -33,7 +32,6 @@ class ArayanDashboard {
         this.bindEvents();
         this.updateStats();
         this.renderCallHistory();
-        this.renderBlockedNumbers();
         this.updateConnectionStatus();
         this.initializeCustomerManagement();
     }
@@ -120,34 +118,7 @@ class ArayanDashboard {
             });
         }
 
-        // Block number modal
-        const blockNumberBtn = document.getElementById('blockNumberBtn');
-        if (blockNumberBtn) {
-            blockNumberBtn.addEventListener('click', () => {
-                this.openModal('blockNumberModal');
-            });
-        }
 
-        const closeBlockModalBtn = document.getElementById('closeBlockModalBtn');
-        if (closeBlockModalBtn) {
-            closeBlockModalBtn.addEventListener('click', () => {
-                this.closeModal('blockNumberModal');
-            });
-        }
-
-        const confirmBlockBtn = document.getElementById('confirmBlockBtn');
-        if (confirmBlockBtn) {
-            confirmBlockBtn.addEventListener('click', () => {
-                this.blockNumber();
-            });
-        }
-
-        const cancelBlockBtn = document.getElementById('cancelBlockBtn');
-        if (cancelBlockBtn) {
-            cancelBlockBtn.addEventListener('click', () => {
-                this.closeModal('blockNumberModal');
-            });
-        }
 
         // Quick actions
         const addContactBtn = document.getElementById('addContactBtn');
@@ -178,12 +149,7 @@ class ArayanDashboard {
             });
         }
 
-        const manageBlockedBtn = document.getElementById('manageBlockedBtn');
-        if (manageBlockedBtn) {
-            manageBlockedBtn.addEventListener('click', () => {
-                this.manageBlockedNumbers();
-            });
-        }
+
 
         // Call actions
         const answerBtn = document.getElementById('answerBtn');
@@ -1178,99 +1144,15 @@ class ArayanDashboard {
     }
 
     // Block Number Management
-    blockNumber() {
-        const numberInput = document.getElementById('blockNumberInput');
-        const reasonInput = document.getElementById('blockReasonInput');
-        
-        const number = numberInput.value.trim();
-        const reason = reasonInput.value;
-        
-        if (!number) {
-            this.showNotification('Lütfen bir telefon numarası girin', 'error');
-            return;
-        }
-        
-        // Check if already blocked
-        if (this.blockedNumbers.find(blocked => blocked.number === number)) {
-            this.showNotification('Bu numara zaten engellenmiş', 'warning');
-            return;
-        }
-        
-        const blockedNumber = {
-            id: Date.now(),
-            number: number,
-            reason: reason || 'Belirtilmemiş',
-            timestamp: new Date()
-        };
-        
-        this.blockedNumbers.push(blockedNumber);
-        this.saveData();
-        this.renderBlockedNumbers();
-        this.updateStats();
-        
-        this.closeModal('blockNumberModal');
-        this.showNotification('Numara başarıyla engellendi', 'success');
-    }
 
-    unblockNumber(id) {
-        this.blockedNumbers = this.blockedNumbers.filter(blocked => blocked.id !== id);
-        this.saveData();
-        this.renderBlockedNumbers();
-        this.updateStats();
-        this.showNotification('Numara engeli kaldırıldı', 'info');
-    }
 
-    renderBlockedNumbers() {
-        const blockedList = document.getElementById('blockedList');
-        
-        if (this.blockedNumbers.length === 0) {
-            blockedList.innerHTML = '<div class="empty-state"><p>Henüz engellenmiş numara bulunmuyor.</p></div>';
-            return;
-        }
-        
-        const recentBlocked = this.blockedNumbers.slice(0, 3); // Show only last 3 blocked numbers
-        
-        blockedList.innerHTML = recentBlocked.map(blocked => {
-            const timeAgo = this.getTimeAgo(blocked.timestamp);
-            
-            return `
-                <div class="blocked-item">
-                    <div class="blocked-info">
-                        <h4>${blocked.number}</h4>
-                        <p>${blocked.reason} • ${timeAgo}</p>
-                    </div>
-                    <button class="unblock-btn" onclick="dashboard.unblockNumber(${blocked.id})">
-                        Engeli Kaldır
-                    </button>
-                </div>
-            `;
-        }).join('');
-    }
+
 
     // Statistics
     updateStats() {
         const totalCalls = this.callHistory.length;
-        const answeredCalls = this.callHistory.filter(call => call.status === 'answered').length;
-        const blockedCalls = this.blockedNumbers.length;
-        
-        // Calculate average call duration
-        const answeredCallsWithDuration = this.callHistory.filter(call => 
-            call.status === 'answered' && call.duration && call.duration !== '00:00'
-        );
-        
-        let avgDuration = 0;
-        if (answeredCallsWithDuration.length > 0) {
-            const totalSeconds = answeredCallsWithDuration.reduce((total, call) => {
-                const [minutes, seconds] = call.duration.split(':').map(Number);
-                return total + (minutes * 60) + seconds;
-            }, 0);
-            avgDuration = Math.round(totalSeconds / answeredCallsWithDuration.length / 60);
-        }
         
         document.getElementById('totalCalls').textContent = totalCalls;
-        document.getElementById('answeredCalls').textContent = answeredCalls;
-        document.getElementById('blockedCalls').textContent = blockedCalls;
-        document.getElementById('avgCallDuration').textContent = `${avgDuration} dk`;
     }
 
     // Connection Status
@@ -1314,16 +1196,12 @@ class ArayanDashboard {
         window.location.href = './screen/addProduct.html';
     }
 
-    manageBlockedNumbers() {
-        this.showNotification('Engellenen numaralar yönetimi açılıyor...', 'info');
-        // Here you would typically open a detailed blocked numbers management view
-    }
+
 
     // Settings Actions
     exportData() {
         const data = {
             callHistory: this.callHistory,
-            blockedNumbers: this.blockedNumbers,
             exportDate: new Date().toISOString()
         };
         
@@ -1352,7 +1230,6 @@ class ArayanDashboard {
         if (confirm('Uygulamayı sıfırlamak istediğinizden emin misiniz? Tüm veriler silinecektir ve kurulum ekranına yönlendirileceksiniz.')) {
             // Uygulama verilerini temizle
             this.callHistory = [];
-            this.blockedNumbers = [];
             this.currentCall = null;
             this.isOnline = false;
             

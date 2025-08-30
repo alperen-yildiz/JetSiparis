@@ -18,6 +18,18 @@
                     <span class="version">v1.0</span>
                 </div>
                 <div class="user-section">
+                    <div class="com-port-section">
+                        <label for="comPortSelect" class="com-port-label">
+                            <i class="fas fa-usb"></i>
+                            COM Port:
+                        </label>
+                        <select id="comPortSelect" class="com-port-select">
+                            <option value="">Port Seçin...</option>
+                        </select>
+                        <button id="refreshPortsBtn" class="refresh-ports-btn" title="Portları Yenile">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
                     <div class="call-status" id="callStatus">
                         <span class="status-indicator offline" id="statusIndicator"></span>
                         <span class="status-text" id="statusText">Çevrimdışı</span>
@@ -531,35 +543,7 @@
                         </div>
                     </div>
                     
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-phone-volume"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="answeredCalls">0</h3>
-                            <p>Cevaplanan</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="blockedCalls">0</h3>
-                            <p>Engellenen</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="avgCallDuration">0 dk</h3>
-                            <p>Ort. Süre</p>
-                        </div>
-                    </div>
+
                 </div>
             </section>
 
@@ -569,10 +553,6 @@
                     <h2><i class="fas fa-bolt"></i> Hızlı İşlemler</h2>
                 </div>
                 <div class="quick-actions-grid">
-                    <button class="quick-action-btn" id="blockNumberBtn">
-                        <i class="fas fa-ban"></i>
-                        <span>Numara Engelle</span>
-                    </button>
                     <button class="quick-action-btn" id="addContactBtn">
                         <i class="fas fa-user-plus"></i>
                         <span>Kişi Ekle</span>
@@ -603,20 +583,7 @@
                 </div>
             </section>
 
-            <!-- Blocked Numbers -->
-            <section class="blocked-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-shield-alt"></i> Engellenen Numaralar</h2>
-                    <button class="manage-blocked-btn" id="manageBlockedBtn">
-                        <i class="fas fa-cog"></i>
-                        Yönet
-                    </button>
-                </div>
-                
-                <div class="blocked-list" id="blockedList">
-                    <!-- Blocked numbers will be dynamically generated -->
-                </div>
-            </section>
+
         </main>
     </div>
 
@@ -709,43 +676,14 @@
         </div>
     </div>
 
-    <!-- Block Number Modal -->
-    <div class="modal" id="blockNumberModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-ban"></i> Numara Engelle</h3>
-                <button class="close-btn" id="closeBlockModalBtn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="input-group">
-                    <label for="blockNumberInput">Telefon Numarası</label>
-                    <input type="tel" id="blockNumberInput" placeholder="+90 XXX XXX XX XX">
-                </div>
-                <div class="input-group">
-                    <label for="blockReasonInput">Engelleme Nedeni (İsteğe bağlı)</label>
-                    <select id="blockReasonInput">
-                        <option value="">Neden seçin</option>
-                        <option value="spam">Spam/Reklam</option>
-                        <option value="harassment">Taciz</option>
-                        <option value="unknown">Bilinmeyen numara</option>
-                        <option value="other">Diğer</option>
-                    </select>
-                </div>
-                <div class="modal-actions">
-                    <button class="btn-secondary" id="cancelBlockBtn">İptal</button>
-                    <button class="btn-primary" id="confirmBlockBtn">Engelle</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
     
     <script src="./assets/js/cityManager.js"></script>
 <script type="module" src="./js/customerManager.js"></script>
 <script type="module" src="./assets/js/arayanDashboard.js"></script>
 <script type="module" src="./js/arayanProducts.js"></script>
 <script type="module" src="./js/orderSystemTest.js"></script>
+<script type="module" src="./js/comPortManager.js"></script>
 
 </body>
 </html>
