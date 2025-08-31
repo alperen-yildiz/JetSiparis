@@ -192,7 +192,7 @@ fn show_caller_notification(app: &AppHandle, phone_number: &str) {
         .builder()
         .title("Gelen Arama")
         .body(&format!("Arayan: {} - Arayan Dashboard'u açmak için sistem tepsisini kullanın", phone_number))
-        .icon("icons/icon.ico")
+        .icon("icons/32x32.png")
         .show();
     
     if let Err(e) = notification_result {
