@@ -1,15 +1,15 @@
+use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
+use serialport::SerialPort;
+use std::io::{Read, Write};
 use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
-use std::io::{Read, Write};
-use serialport::SerialPort;
-use tauri::{AppHandle, Manager, Emitter};
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
+use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_notification::NotificationExt;
 use tauri_plugin_opener::OpenerExt;
-use serde::{Deserialize, Serialize};
-use once_cell::sync::Lazy;
 
 // Caller ID verisi için struct
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,7 +19,8 @@ struct CallerIdData {
 }
 
 // Global durum değişkenleri
-static COM_PORT_CONNECTION: Lazy<Mutex<Option<Box<dyn SerialPort + Send>>>> = Lazy::new(|| Mutex::new(None));
+static COM_PORT_CONNECTION: Lazy<Mutex<Option<Box<dyn SerialPort + Send>>>> =
+    Lazy::new(|| Mutex::new(None));
 static IS_LISTENING: Lazy<Mutex<bool>> = Lazy::new(|| Mutex::new(false));
 static READ_BUFFER: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(String::new()));
 
@@ -40,7 +41,7 @@ fn get_com_ports() -> Result<Vec<String>, String> {
             let port_names: Vec<String> = ports.into_iter().map(|port| port.port_name).collect();
             Ok(port_names)
         }
-        Err(e) => Err(format!("COM portları alınamadı: {}", e))
+        Err(e) => Err(format!("COM portları alınamadı: {}", e)),
     }
 }
 
@@ -55,7 +56,8 @@ fn connect_com_port(port_name: String) -> Result<String, String> {
 
     match serialport::new(&port_name, 9600)
         .timeout(Duration::from_millis(200))
-        .open() {
+        .open()
+    {
         Ok(mut port) => {
             // Caller ID açmayı dene (bazı cihazlarda gerekli)
             if let Err(e) = port.write_all(b"AT+VCID=1\r") {
@@ -67,7 +69,7 @@ fn connect_com_port(port_name: String) -> Result<String, String> {
             *connection = Some(port);
             Ok(format!("{} portuna bağlandı", port_name))
         }
-        Err(e) => Err(format!("Port bağlantısı başarısız: {}", e))
+        Err(e) => Err(format!("Port bağlantısı başarısız: {}", e)),
     }
 }
 
@@ -112,7 +114,10 @@ fn start_caller_id_listening(app_handle: AppHandle) -> Result<String, String> {
                 if let Some(ref mut port) = *connection {
                     port.read(&mut byte_buffer)
                 } else {
-                    Err(std::io::Error::new(std::io::ErrorKind::NotConnected, "Port bağlı değil"))
+                    Err(std::io::Error::new(
+                        std::io::ErrorKind::NotConnected,
+                        "Port bağlı değil",
+                    ))
                 }
             };
 
@@ -136,7 +141,7 @@ fn start_caller_id_listening(app_handle: AppHandle) -> Result<String, String> {
                                     };
                                     let _ = app.emit("caller-id-received", &caller_data);
                                     println!("Caller ID alındı: {}", phone_number);
-                                    
+
                                     // Windows bildirimi gönder
                                     show_caller_notification(&app, &phone_number);
                                 } else {
@@ -157,7 +162,7 @@ fn start_caller_id_listening(app_handle: AppHandle) -> Result<String, String> {
                         let _ = app.emit("caller-id-error", format!("Veri okuma hatası: {}", e));
                         thread::sleep(Duration::from_millis(100));
                     }
-                }
+                },
             }
         }
 
@@ -188,13 +193,17 @@ fn get_connection_status() -> bool {
 
 // Windows bildirimi gönderen fonksiyon
 fn show_caller_notification(app: &AppHandle, phone_number: &str) {
-    let notification_result = app.notification()
+    let notification_result = app
+        .notification()
         .builder()
         .title("Gelen Arama")
-        .body(&format!("Arayan: {} - Arayan Dashboard'u açmak için sistem tepsisini kullanın", phone_number))
+        .body(&format!(
+            "Arayan: {} - Arayan Dashboard'u açmak için sistem tepsisini kullanın",
+            phone_number
+        ))
         .icon("icons/32x32.png")
         .show();
-    
+
     if let Err(e) = notification_result {
         println!("Bildirim gönderilemedi: {}", e);
     }
@@ -205,7 +214,7 @@ fn create_tray_menu(app: &AppHandle) -> Result<Menu<tauri::Wry>, tauri::Error> {
     let show_item = MenuItem::with_id(app, "show", "Uygulamayı Göster", true, None::<&str>)?;
     let arayan_item = MenuItem::with_id(app, "arayan", "Arayan Dashboard", true, None::<&str>)?;
     let quit_item = MenuItem::with_id(app, "quit", "Çıkış", true, None::<&str>)?;
-    
+
     Menu::with_items(app, &[&show_item, &arayan_item, &quit_item])
 }
 
@@ -215,7 +224,10 @@ fn parse_caller_id(data: &str) -> Option<String> {
 
     if let Some(start) = data_upper.find("NMBR=") {
         let number_part = &data[start + 5..];
-        let digits: String = number_part.chars().take_while(|c| c.is_ascii_digit()).collect();
+        let digits: String = number_part
+            .chars()
+            .take_while(|c| c.is_ascii_digit())
+            .collect();
         if digits.len() >= 10 {
             return Some(digits);
         }
@@ -223,7 +235,10 @@ fn parse_caller_id(data: &str) -> Option<String> {
 
     if let Some(start) = data_upper.find("NUMBER=") {
         let number_part = &data[start + 7..];
-        let digits: String = number_part.chars().take_while(|c| c.is_ascii_digit()).collect();
+        let digits: String = number_part
+            .chars()
+            .take_while(|c| c.is_ascii_digit())
+            .collect();
         if digits.len() >= 10 {
             return Some(digits);
         }
@@ -240,6 +255,7 @@ fn parse_caller_id(data: &str) -> Option<String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_shell::init())
@@ -257,7 +273,7 @@ pub fn run() {
         .setup(|app| {
             // Sistem tepsisi menüsünü oluştur
             let menu = create_tray_menu(&app.handle())?;
-            
+
             // Sistem tepsisi ikonunu oluştur
             let _tray = TrayIconBuilder::with_id("main-tray")
                 .menu(&menu)
@@ -272,47 +288,51 @@ pub fn run() {
                             }
                         }
                         "arayan" => {
-                              // arayanDashboard.html dosyasını aç - dinamik yol kullanarak
-                              match app.path().app_local_data_dir() {
-                                  Ok(app_dir) => {
-                                      // Uygulamanın bulunduğu dizinin parent'ını al ve src klasörüne git
-                                      let mut arayan_path = app_dir;
-                                      arayan_path.pop(); // app_local_data_dir'den çık
-                                      arayan_path.pop(); // bir üst dizine çık
-                                      arayan_path.push("src");
-                                      arayan_path.push("arayanDashboard.html");
-                                      
-                                      if arayan_path.exists() {
-                                          if let Err(e) = app.opener()
-                                              .open_url(arayan_path.to_string_lossy().as_ref(), None::<String>) {
-                                              println!("Arayan Dashboard açılamadı: {}", e);
-                                          }
-                                      } else {
-                                           // Alternatif yol: resource dizininden relative path
-                                           if let Ok(resource_dir) = app.path().resource_dir() {
-                                               let mut alt_path = resource_dir;
-                                               alt_path.push("..");
-                                               alt_path.push("src");
-                                               alt_path.push("arayanDashboard.html");
-                                               
-                                               if let Ok(canonical_path) = alt_path.canonicalize() {
-                                                   if let Err(e) = app.opener()
-                                                       .open_url(canonical_path.to_string_lossy().as_ref(), None::<String>) {
-                                                       println!("Arayan Dashboard açılamadı: {}", e);
-                                                   }
-                                               } else {
-                                                   println!("Arayan Dashboard dosyası bulunamadı");
-                                               }
-                                           } else {
-                                               println!("Resource dizini alınamadı");
-                                           }
-                                       }
-                                  }
-                                  Err(e) => {
-                                      println!("Uygulama dizini alınamadı: {}", e);
-                                  }
-                              }
-                          }
+                            // arayanDashboard.html dosyasını aç - dinamik yol kullanarak
+                            match app.path().app_local_data_dir() {
+                                Ok(app_dir) => {
+                                    // Uygulamanın bulunduğu dizinin parent'ını al ve src klasörüne git
+                                    let mut arayan_path = app_dir;
+                                    arayan_path.pop(); // app_local_data_dir'den çık
+                                    arayan_path.pop(); // bir üst dizine çık
+                                    arayan_path.push("src");
+                                    arayan_path.push("arayanDashboard.html");
+
+                                    if arayan_path.exists() {
+                                        if let Err(e) = app.opener().open_url(
+                                            arayan_path.to_string_lossy().as_ref(),
+                                            None::<String>,
+                                        ) {
+                                            println!("Arayan Dashboard açılamadı: {}", e);
+                                        }
+                                    } else {
+                                        // Alternatif yol: resource dizininden relative path
+                                        if let Ok(resource_dir) = app.path().resource_dir() {
+                                            let mut alt_path = resource_dir;
+                                            alt_path.push("..");
+                                            alt_path.push("src");
+                                            alt_path.push("arayanDashboard.html");
+
+                                            if let Ok(canonical_path) = alt_path.canonicalize() {
+                                                if let Err(e) = app.opener().open_url(
+                                                    canonical_path.to_string_lossy().as_ref(),
+                                                    None::<String>,
+                                                ) {
+                                                    println!("Arayan Dashboard açılamadı: {}", e);
+                                                }
+                                            } else {
+                                                println!("Arayan Dashboard dosyası bulunamadı");
+                                            }
+                                        } else {
+                                            println!("Resource dizini alınamadı");
+                                        }
+                                    }
+                                }
+                                Err(e) => {
+                                    println!("Uygulama dizini alınamadı: {}", e);
+                                }
+                            }
+                        }
                         "quit" => {
                             app.exit(0);
                         }
@@ -320,7 +340,11 @@ pub fn run() {
                     }
                 })
                 .on_tray_icon_event(|tray, event| {
-                    if let TrayIconEvent::Click { button: MouseButton::Left, .. } = event {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        ..
+                    } = event
+                    {
                         if let Some(app) = tray.app_handle().get_webview_window("main") {
                             let _ = app.show();
                             let _ = app.set_focus();
@@ -328,9 +352,9 @@ pub fn run() {
                     }
                 })
                 .build(app)?;
-            
+
             // Bildirim tıklama olayları on_action ile işleniyor
-            
+
             Ok(())
         })
         .run(tauri::generate_context!())

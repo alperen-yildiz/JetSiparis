@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "JetSiparış",
+  "productName": "JetSiparis",
   "version": "0.1.0",
   "identifier": "com.solosolf.jetsiparis",
   "build": {
@@ -25,7 +25,7 @@
       "csp": null
     },
     "trayIcon": {
-      "iconPath": "icons/icon.ico",
+      "iconPath": "icons/32x32.png",
       "iconAsTemplate": false,
       "menuOnLeftClick": false,
       "tooltip": "JetSiparış - Arka planda çalışıyor"
@@ -33,7 +33,16 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["nsis"],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      },
+      "nsis": {
+        "headerImage": "../installer/assets/header.bmp",
+        "sidebarImage": "../installer/assets/sidebar.bmp"
+      }
+    },
     "icon": [
       "icons/32x32.png",
       "icons/192x192.png",
